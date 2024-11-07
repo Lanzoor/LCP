@@ -42,8 +42,7 @@ pip install keyboard
 If that doesn't work, you don't have Python in your PATH. Please retrace your steps back to **Installing the Python Interpreter**.
 If you are done installing those files or the ZIP file, double click on the **main.py** file. It will show you a pop up, saying to choose which app/program to open this file with; click the option **Python**.
 
-It will now open up the terminal, which is the Lanzoor Command Panel itself.
-Now have fun!
+It will now open up the terminal, which is the Lanzoor Command Panel itself. Now have fun!
 
 > NOTE: If you want to enjoy the true game, I definitely recommend playing the game without taking a peek at the game files / modifying the savefile.
 
