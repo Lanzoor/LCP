@@ -23,7 +23,6 @@ If you are done downloading the Python interpreter. You can proceed downloading 
 Download the latest version of Lanzoor Command Panel by clicking [here](https://github.com/Lanzoor/LCP/releases/latest). Make sure to download the ZIP file. Now, unzip the ZIP file that you downloaded.
 The ZIP file will include:
 - **README.md**: Information that may be needed
-- **functions.py**: Dependencies of the `script.py` file
 - **script.py**: The main program
 - **savedata.json**: Savefile for all of your progress.
 
@@ -47,3 +46,7 @@ It will now open up the terminal, which is the Lanzoor Command Panel itself.
 Now have fun!
 
 > NOTE: If you want to enjoy the true game, I definitely recommend playing the game without taking a peek at the game files / modifying the savefile.
+
+## Extra Information
+
+If you want to ask / suggest / compliment about anything in Lanzoor Command Panel, feel free to ask me in Discord! (lanzoor)
