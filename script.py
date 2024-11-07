@@ -77,7 +77,7 @@ if username == "ERR_NOT_SPECIFIED":
 
 animated_print("Almost done! Applying settings...", delay)
 
-lcp_version = "va-0.0.1"
+lcp_version = "v0.0.1-alpha"
 
 welcome_message = f"Welcome to Lanzoor Command Panel ({lcp_version}), {username}! Type ?help to get help about the commands you can use, or type ?exit to exit the program. Have fun!"
 
