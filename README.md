@@ -41,7 +41,12 @@ pip install pyautogui
 pip install keyboard
 ```
 
-If that doesn't work, you don't have Python in your PATH. Please retrace your steps back to **Installing the Python Interpreter**.
+If that doesn't work, it's either two cases; you don't have Python in your PATH, you should retrace your steps back to **Installing the Python Interpreter**, **OR** pip is outdated and does not match the current Python version. Run this command if its this case;
+
+```ps1
+py -m pip install --upgrade pip
+```
+
 If you are done installing those files or the ZIP file, double click on the **main.py** file. It will show you a pop up, saying to choose which app/program to open this file with; click the option **Python**.
 
 It will now open up the terminal, which is the Lanzoor Command Panel itself. Now have fun!
