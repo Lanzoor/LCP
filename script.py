@@ -35,13 +35,21 @@ except ImportError:
     animated_print("Seems like you didn't properly install the required packages for this project.")
     animated_print("Installing the required packages for you...")
     try:
+        os.system(f"cd {os.path.dirname(__file__)}")
         os.system("pip install colorama")
         os.system("pip install pyautogui")
         os.system("pip install keyboard")
+        os.system("py -m pip install colorama")
+        os.system("py -m pip install pyautogui")
+        os.system("py -m pip install keyboard")
     except PermissionError:
         animated_print("Whoops, permission was denied. Please see if you are missing anything and follow everything in https://github.com/Lanzoor/LCP-E/blob/main/README.md !")
-    time.sleep(10)
-    raise Exception("Program exited.")
+        time.sleep(10)
+        raise Exception("Program exited.")
+    except:
+        animated_print("Autoinstall failed because either pip was outdated (use py -m pip --upgrade pip to upgrade pip if needed). Please see if you are missing anything and follow everything in https://github.com/Lanzoor/LCP-E/blob/main/README.md !")
+        time.sleep(10)
+        raise Exception("Program exited.")
 
 animated_print("External libraries passed!")
 savefile_path = os.path.dirname(__file__) + "/savedata.json"
@@ -71,23 +79,7 @@ multiplier = savedata['multiplier']
 command_count = savedata['commandCount']
 shop_upgrades = savedata['shopUpgrades']
 settings = savedata['settings']
-
-try:
-    delay = 0.005 if settings['useAnimation'] else 0
-except KeyError:
-    animated_print("""Whoops, the setting \"useAnimation\" was either not found, or named incorrectly! Make sure to not edit stuff by yourself.
-Don't worry, we will automatically assign the default value then.
-By the way, is your savefile outdated? If this is your case, try downloading a new savedata from https://github.com/Lanzoor/LCP/blob/main/savedata.json and edit it to your liking.""")
-    settings['useAnimation'] = True
-    delay = 0.005 if settings['useAnimation'] else 0
-
-try:
-    settings['autoSaveEveryCommand'] = settings['autoSaveEveryCommand']
-except KeyError:
-    animated_print("""Whoops, the setting \"autoSaveEveryCommand\" was either not found, or named incorrectly! Make sure to not edit stuff by yourself.
-Don't worry, we will automatically assign the default value then.
-By the way, is your savefile outdated? If this is your case, try downloading a new savedata from https://github.com/Lanzoor/LCP/blob/main/savedata.json and edit it to your liking.""")
-    settings['autoSaveEveryCommand'] = True
+delay = 0.005 if settings['useAnimation'] else 0
 
 def save_all_data():
     global savedata, username, points, multiplier, command_count, shop_upgrades, settings, delay
@@ -118,7 +110,7 @@ if username == "ERR_NOT_SPECIFIED":
 
 animated_print("Almost done! Applying settings...", delay)
 
-lcp_version = "v0.0.3-alpha"
+lcp_version = "v0.0.3.1-alpha"
 
 welcome_message = f"Welcome to Lanzoor Command Panel ({colorama.Fore.GREEN + lcp_version + colorama.Fore.RESET}), {colorama.Fore.BLUE + username + colorama.Fore.RESET}! Type ?help to get help about the commands you can use, or type ?exit to exit the program. Have fun!"
 
