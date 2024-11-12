@@ -39,17 +39,20 @@ except ImportError:
         os.system("pip install colorama")
         os.system("pip install pyautogui")
         os.system("pip install keyboard")
-        os.system("py -m pip install colorama")
-        os.system("py -m pip install pyautogui")
-        os.system("py -m pip install keyboard")
     except PermissionError:
-        animated_print("Whoops, permission was denied. Please see if you are missing anything and follow everything in https://github.com/Lanzoor/LCP-E/blob/main/README.md !")
+        animated_print("Whoops, permission was denied. In this case, you should manually install packages.\nPlease see if you are missing anything and follow everything in https://github.com/Lanzoor/LCP-E/blob/main/README.md !")
         time.sleep(10)
         raise Exception("Program exited.")
     except:
-        animated_print("Autoinstall failed because either pip was outdated (use py -m pip --upgrade pip to upgrade pip if needed). Please see if you are missing anything and follow everything in https://github.com/Lanzoor/LCP-E/blob/main/README.md !")
-        time.sleep(10)
-        raise Exception("Program exited.")
+        animated_print("Autoinstall failed because either pip was outdated (use py -m pip --upgrade pip to upgrade pip if needed). Trying alternate methods...")
+        try:
+            os.system("py -m pip install colorama")
+            os.system("py -m pip install pyautogui")
+            os.system("py -m pip install keyboard")
+        except:
+            animated_print("Alternate methods did not work either. Please see if you are missing anything and follow everything in https://github.com/Lanzoor/LCP-E/blob/main/README.md !")
+            time.sleep(10)
+            raise Exception("Program exited.")
 
 animated_print("External libraries passed!")
 savefile_path = os.path.dirname(__file__) + "/savedata.json"
@@ -110,7 +113,7 @@ if username == "ERR_NOT_SPECIFIED":
 
 animated_print("Almost done! Applying settings...", delay)
 
-lcp_version = "v0.0.3.1-alpha"
+lcp_version = "v0.0.3.2-alpha"
 
 welcome_message = f"Welcome to Lanzoor Command Panel ({colorama.Fore.GREEN + lcp_version + colorama.Fore.RESET}), {colorama.Fore.BLUE + username + colorama.Fore.RESET}! Type ?help to get help about the commands you can use, or type ?exit to exit the program. Have fun!"
 
