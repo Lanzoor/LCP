@@ -48,6 +48,10 @@ It will now open up the terminal, which is the Lanzoor Command Panel itself. Now
 
 > NOTE: If you want to enjoy the true game, I definitely recommend playing the game without taking a peek at the game files / modifying the savefile.
 
+> ANOTHER IMPORTANT NOTE: If you are updating your Lanzoor Command Panel, make sure to also download a fresh new savedata file.
+> Why? Well, this is because a new update might add an option; must also update the savedata file format according to the script.
+> At least it is better than getting a lot of errors because of an undefined key.
+
 ## Extra Information
 
 If you want to ask / suggest / compliment about anything in Lanzoor Command Panel, feel free to ask me in Discord! (lanzoor)
