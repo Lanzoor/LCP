@@ -20,7 +20,7 @@ If you are done downloading the Python interpreter. You can proceed downloading 
 
 ## Installing Lanzoor Command Panel
 
-Download the latest version of Lanzoor Command Panel by clicking [here](https://github.com/Lanzoor/LCP/releases/latest). Make sure to download the ZIP file. Now, unzip the ZIP file that you downloaded.
+Download the latest version of Lanzoor Command Panel by clicking [here](github.com/Lanzoor/LCP/releases/latest). Make sure to download the ZIP file. Now, unzip the ZIP file that you downloaded.
 The ZIP file will include:
 - **README.md**: Information that may be needed
 - **script.py**: The main program
@@ -31,6 +31,8 @@ The ZIP file will include:
 ## Running Lanzoor Command Panel
 
 Before you run Lanzoor Command Panel, you need to install some external libraries.
+In most cases though, Lanzoor Command Panel will automatically install the packages for you.
+If permission is denied tho, you should probably do it manually.
 You can do this by running these commands:
 
 ```ps1
