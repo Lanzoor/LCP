@@ -10,7 +10,7 @@ Lanzoor Command Panel is a Python program / game that has some useful functions 
 
 Sorry for the inconvenience, but Lanzoor Command Panel needs a **Python interpreter** to run. If you already installed the Python interpreter, you can skip this step.
 
-1. Start by installing the **Python interpreter** by clicking [here](https://python.org/downloads).
+1. Start by downloading the **Python interpreter** by clicking [here](https://python.org/downloads).
 2. Download the Python installer based on your OS version.
 3. Run the executable file.
 4. Set the **Add to PATH** tickbox to on.
@@ -36,6 +36,7 @@ Before you run Lanzoor Command Panel, you need to install some external librarie
 pip install colorama
 pip install pyautogui
 pip install keyboard
+pip install requests
 ```
 
 If that doesn't work, it's either two cases; you don't have Python in your PATH, you should retrace your steps back to **Installing the Python Interpreter**, **OR** pip is outdated and does not match the current Python version. Run this command if its this case;
