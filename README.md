@@ -52,8 +52,11 @@ It will now open up the terminal, which is the Lanzoor Command Panel itself. Now
 > NOTE: If you want to enjoy the true game, I definitely recommend playing the game without taking a peek at the game files / modifying the savefile.
 
 > ANOTHER IMPORTANT NOTE: If you are updating your Lanzoor Command Panel, make sure to also download a fresh new savedata file.
+> You can just proceed fine if both versions are same.
 > Why? Well, this is because a new update might add an option; must also update the savedata file format according to the script.
 > At least it is better than getting a lot of errors because of an undefined key.
+
+> LAST NOTE: When you start LCP, it will go through a process called inspection; it will tell you if your savedata file is outdated or you don't have packages installed.
 
 ## Extra Information
 
