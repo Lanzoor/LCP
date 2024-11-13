@@ -1,5 +1,7 @@
 import platform, time, tkinter, random, json, os, webbrowser
 
+lcp_version = "v0.0.4.7-alpha"
+
 class ForceQuitted(Exception) : ...
 class FetchError(Exception) : ...
 
@@ -62,7 +64,7 @@ except FileNotFoundError:
     animated_print("Savedata was not found. Creating a brand-new empty savedata for you...")
     try:
         with open(savefile_path, "w") as file:
-            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": 0, \"end\": false, \"shopUpgradesPurchased\": 0}, \"settings\": {\"useAnimation\": true, \"autoSaveEveryCommand\": true}}")
+            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": 0, \"end\": false, \"shopUpgradesPurchased\": 0}, \"settings\": {\"useAnimation\": true, \"autoSaveEveryCommand\": true}, \"savedataVersion\": \"%s\"}" % lcp_version)
         with open(savefile_path, "r") as saveddata:
             savedata = json.load(saveddata)
         del saveddata
@@ -73,6 +75,10 @@ except FileNotFoundError:
 
 animated_print("Your savefile was found! Reading data...")
 
+savedata_version = savedata['savedataVersion']
+
+if savedata_version != lcp_version:
+    animated_print("Your savedata does not match your current version, please download one corresponding to your script version using https://github.com/Lanzoor/LCP/blob/main/savedata.json !")
 username = savedata['username']
 points = savedata['points']
 multiplier = savedata['multiplier']
@@ -130,8 +136,6 @@ if len(username) < 3 or len(username) >= 10:
     save_all_data()
 
 animated_print("Almost done! Applying settings...", delay)
-
-lcp_version = "v0.0.4.6-alpha"
 
 welcome_message = f"Welcome to Lanzoor Command Panel ({Fore.GREEN + lcp_version + Fore.RESET}), {Fore.BLUE + username + Fore.RESET}! Type ?help to get help about the commands you can use, or type ?exit to exit the program. Have fun!"
 
@@ -224,6 +228,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                             savedata['commandCount'] = 0
                             savedata['shopUpgrades'] = {"multiplier++": 0, "multiplier**": 0, "end": False, "shopUpgradesPurchased": 0}
                             savedata['settings'] = {"useAnimation": True, "autoSaveEveryCommand": True}
+                            savedata['savedataVersion'] = lcp_version
                             
                             with open(savefile_path, "w") as saveddata:
                                 json.dump(savedata, saveddata)
@@ -231,7 +236,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                             
                             animated_print("Savedata deletion successful. This program will automatically close after a few seconds.", delay)
                             time.sleep(3)
-                            raise ForceQuitted("Savedata reset performed; exiting the program.")
+                            raise ForceQuitted("Savedata reset performed; exited the program.")
                     case "?exit" | "exit":
                         animated_print("Exited settings.", delay)
                         break
@@ -281,7 +286,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
             computer_choice = random.choice(valid_rps_choice)
             
             while user_choice not in valid_rps_choice:
-                user_choice = animated_input("You dumdum, that is not a valid choice! Try again.\n> ", delay).capitalize().replace(" ","")
+                user_choice = animated_input("You silly, that is not a valid choice! Try again.\n> ", delay).capitalize().replace(" ","")
             
             if computer_choice == user_choice:
                 win_state = "It's a draw!"
