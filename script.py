@@ -131,7 +131,7 @@ if len(username) < 3 or len(username) >= 10:
 
 animated_print("Almost done! Applying settings...", delay)
 
-lcp_version = "v0.0.4.5-alpha"
+lcp_version = "v0.0.4.6-alpha"
 
 welcome_message = f"Welcome to Lanzoor Command Panel ({Fore.GREEN + lcp_version + Fore.RESET}), {Fore.BLUE + username + Fore.RESET}! Type ?help to get help about the commands you can use, or type ?exit to exit the program. Have fun!"
 
@@ -146,6 +146,9 @@ help_message = f"""Here are all commands you can use in Lanzoor Command Panel as
 ?datetime / ?timedate: Displays your date and time.
 ?rps / ?rockpaperscissors: Play the rock paper scissors game.
 ?golt / ?greaterorlowerthan: Play the greater or lower than game.
+?readme: Opens the README.md file for instructions.
+?checkforupdates / ?checkforupdate / ?checkupdates / ?checkupdate / ?updates / ?update: Fetches data from GitHub and sees if a new version of LCP is avaliable.
+
 ?exit: Exit Lanzoor Command Panel.
 
 And, here are some few things that you should probably consider using Lanzoor Command Panel.
@@ -327,7 +330,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
         case "?readme":
             animated_print("Beaming information to your web browser...", delay)
             webbrowser.open_new("https://github.com/Lanzoor/LCP/blob/main/README.md")
-        case "?checkupdates" | "?checkupdate" | "?updates" | "?update":
+        case "?checkforupdates" | "?checkforupdate" | "?checkupdates" | "?checkupdate" | "?updates" | "?update":
             try:
                 latest_tag = get_latest_tag("Lanzoor", "LCP")
                 if latest_tag == lcp_version:
