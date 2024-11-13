@@ -31,9 +31,6 @@ The ZIP file will include:
 ## Running Lanzoor Command Panel
 
 Before you run Lanzoor Command Panel, you need to install some external libraries.
-In most cases though, Lanzoor Command Panel will automatically install the packages for you.
-If permission is denied tho, you should probably do it manually.
-You can do this by running these commands:
 
 ```ps1
 pip install colorama
