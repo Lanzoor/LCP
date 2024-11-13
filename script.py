@@ -1,7 +1,6 @@
-import platform, time, tkinter, random, json, os, webbrowser
+import platform, time, tkinter, random, json, os, webbrowser, base64
 
-lcp_version = "v0.0.4.7-alpha"
-
+lcp_version = "v0.0.5-alpha"
 class ForceQuitted(Exception) : ...
 class FetchError(Exception) : ...
 
@@ -21,7 +20,7 @@ animated_print("Starting inspection...")
 if not (int(platform.python_version_tuple()[2]) >= 10 or int(platform.python_version_tuple()[1]) >= 2):
     animated_print(f"You are running this program in an outdated version of the Python interpreter. Your current Python version is {platform.python_version()}, and at least version 3.10~ is recommended for this program.")
     time.sleep(10)
-    raise ForceQuitted("Program exited.")
+    raise ForceQuitted("Program exited due to an outdated Python interpreter.")
 
 animated_print(f"Python interpreter version requirement passed! (Required: 3.10~, Current: {platform.python_version()})")
 
@@ -42,16 +41,7 @@ except ImportError:
 Unfortunately, we can't automatically install the packages for you / use pyInstaller because it comes with a huge risk and might not be compatiable with a lot of OS's.
 Please see if you are missing anything and follow everything in https://github.com/Lanzoor/LCP/blob/main/README.md !""")
     time.sleep(10)
-    raise ForceQuitted("Program exited.")
-
-def get_latest_tag(repo_owner: str, repo_name: str) -> str:
-    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/tags"
-    response = requests.get(url)
-    if response.status_code == 200:
-        tags = response.json()
-        return tags[0]["name"]
-    else:
-        raise FetchError("Failed to fetch tags, please see if you have an internet connection.")
+    raise ForceQuitted("Program exited due to missing dependencies.")
 
 animated_print("External libraries passed!")
 savefile_path = os.path.dirname(__file__) + "/savedata.json"
@@ -64,14 +54,14 @@ except FileNotFoundError:
     animated_print("Savedata was not found. Creating a brand-new empty savedata for you...")
     try:
         with open(savefile_path, "w") as file:
-            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": 0, \"end\": false, \"shopUpgradesPurchased\": 0}, \"settings\": {\"useAnimation\": true, \"autoSaveEveryCommand\": true}, \"savedataVersion\": \"%s\"}" % lcp_version)
+            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": false, \"end\": false, \"shopUpgradesPurchased\": 0}, \"settings\": {\"useAnimation\": true, \"autoSaveEveryCommand\": true}, \"savedataVersion\": \"%s\"}" % lcp_version)
         with open(savefile_path, "r") as saveddata:
             savedata = json.load(saveddata)
         del saveddata
     except PermissionError:
         animated_print("Permission was denied. Perhaps you should download a brand-new savedata from https://github.com/Lanzoor/LCP/blob/main/savedata.json.")
         time.sleep(10)
-        raise ForceQuitted("Program exited.")
+        raise ForceQuitted("Program exited due to savefile not existing.")
 
 animated_print("Your savefile was found! Reading data...")
 
@@ -79,6 +69,17 @@ savedata_version = savedata['savedataVersion']
 
 if savedata_version != lcp_version:
     animated_print("Your savedata does not match your current version, please download one corresponding to your script version using https://github.com/Lanzoor/LCP/blob/main/savedata.json !")
+    time.sleep(10)
+    raise ForceQuitted("Program exited due to an outdated savedata.json file.")
+def get_latest_tag(repo_owner: str, repo_name: str) -> str:
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/tags"
+    response = requests.get(url)
+    if response.status_code == 200:
+        tags = response.json()
+        return tags[0]["name"]
+    else:
+        raise FetchError("Failed to fetch tags, please see if you have an internet connection.")
+
 username = savedata['username']
 points = savedata['points']
 multiplier = savedata['multiplier']
@@ -109,7 +110,7 @@ if username == "ERR_NOT_SPECIFIED":
             animated_print(f"Failed to initialize new username because the username you're trying resembles a default placeholder name. Please try a different one.", delay)
         elif len(new_username) < 3:
             animated_print("Usernames can't be shorter than 3 characters. Please make it longer!")
-        elif len(new_username >= 20):
+        elif len(new_username) >= 20:
             animated_print("Usernames can't be longer than 19 characters. Please make it shorter!")
         else:
             animated_print(f"Your brand new username is set to {Fore.BLUE + new_username + Fore.RESET}. If you want it changed, you can always change your username via ?settings.", delay)
@@ -118,7 +119,7 @@ if username == "ERR_NOT_SPECIFIED":
             break
     save_all_data()
 
-if len(username) < 3 or len(username) >= 10:
+if len(username) < 3 or len(username) >= 20:
     animated_print("Your username is either long or short. I know you edited the savedata, right? Anyways, please try a different one.", delay)
     while True:
         new_username = animated_input("Enter your new username!\n> ", delay).strip()
@@ -126,7 +127,7 @@ if len(username) < 3 or len(username) >= 10:
             animated_print(f"Failed to initialize new username because the username you're trying resembles a default placeholder name. Please try a different one.", delay)
         elif len(new_username) < 3:
             animated_print("Usernames can't be shorter than 3 characters. Please make it longer!")
-        elif len(new_username >= 20):
+        elif len(new_username) >= 20:
             animated_print("Usernames can't be longer than 19 characters. Please make it shorter!")
         else:
             animated_print(f"Your brand new username is set to {Fore.BLUE + new_username + Fore.RESET}. If you want it changed, you can always change your username via ?settings.", delay)
@@ -205,7 +206,7 @@ Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
                                 animated_print(f"Failed to initialize new username because the username you're trying resembles a default placeholder name. Please try a different one.", delay)
                             elif len(new_username) < 3:
                                 animated_print("Usernames can't be shorter than 3 characters. Please make it longer!")
-                            elif len(new_username >= 20):
+                            elif len(new_username) >= 20:
                                 animated_print("Usernames can't be longer than 19 characters. Please make it shorter!")
                             else:
                                 animated_print(f"Your username is set to {Fore.BLUE + new_username + Fore.RESET}.", delay)
@@ -226,7 +227,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                             savedata['points'] = 0
                             savedata['multiplier'] = 1
                             savedata['commandCount'] = 0
-                            savedata['shopUpgrades'] = {"multiplier++": 0, "multiplier**": 0, "end": False, "shopUpgradesPurchased": 0}
+                            savedata['shopUpgrades'] = {"multiplier++": 0, "multiplier**": False, "end": False, "shopUpgradesPurchased": 0}
                             savedata['settings'] = {"useAnimation": True, "autoSaveEveryCommand": True}
                             savedata['savedataVersion'] = lcp_version
                             
@@ -236,7 +237,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                             
                             animated_print("Savedata deletion successful. This program will automatically close after a few seconds.", delay)
                             time.sleep(3)
-                            raise ForceQuitted("Savedata reset performed; exited the program.")
+                            raise ForceQuitted("Program exited; savedata deletion performed.")
                     case "?exit" | "exit":
                         animated_print("Exited settings.", delay)
                         break
@@ -309,7 +310,16 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
             choice = random.randint(1, 100)
             attempts = 0
             while True:
-                user_choice = animated_input("Enter your guess!\n> ", delay).strip()
+                user_choice = animated_input("Enter your guess! Type rules or !rules to view the rules, or exit or ?exit to exit.\n> ", delay).strip()
+                if user_choice.lower() == "rules" or user_choice.lower() == "!rules":
+                    animated_print("""Golt, aka greater or lower than game is a game where you guess a number.
+I will randomly pick a number between 1 and 100 (inclusive), and your goal is to guess the number.
+Everytime you fail, I will tell you if your number is greater or lower than my choice. (That's why its called golt)
+Have fun!""")
+                elif user_choice.lower() == "exit" or user_choice.lower() == "?exit":
+                    animated_print("Exited golt.")
+                    recieve_points = False
+                    break
                 try:
                     user_choice = int(user_choice)
                 except ValueError:
@@ -324,13 +334,15 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                 elif choice == user_choice:
                     attempts += 1
                     animated_print(f"You've guessed it right! You used {attempts} attempts in this game, and the answer was {Style.BRIGHT}{choice}{Style.RESET_ALL}.", delay)
+                    recieve_points = True
                     break
                 attempts += 1
-            pending_points = (10 - attempts) * multiplier
-            points += pending_points
+            if recieve_points:
+                pending_points = (10 - attempts) * multiplier
+                points += pending_points
             if pending_points <= 0:
                 animated_print(f"You used too many attempts in this game! You didn't gain any points.", delay)
-            else:
+            elif recieve_points:
                 animated_print(f"You gained {pending_points} points in this game.", delay)
         case "?readme":
             animated_print("Beaming information to your web browser...", delay)
@@ -346,6 +358,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
             except FetchError as e:
                 animated_print(e, delay)
         case "?exit":
+            save_all_data()
             break
         case _:
             continue
@@ -353,8 +366,8 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
     if settings['autoSaveEveryCommand']:
         save_all_data()
 
-save_all_data()
-
 animated_print(f"Goodbye {Fore.BLUE + username + Fore.RESET}, see you again!", delay)
 
 time.sleep(1)
+
+raise ForceQuitted("User exited intentionally.")
