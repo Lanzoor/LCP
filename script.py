@@ -149,7 +149,7 @@ Savedata will be autosaved when you exit this program, though.{colorama.Style.RE
 {colorama.Fore.RED}4. RESET DATA{colorama.Fore.RESET}"""
             animated_print(settings_message, delay)
             while True:
-                settings_input = animated_input("> ", delay).strip()
+                settings_input = animated_input("> ", delay).strip().lower()
                 match settings_input:
                     case "1":
                         settings['useAnimation'] = not (settings['useAnimation'])
