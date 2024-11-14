@@ -1,1 +1,1 @@
-{"username": "ERR_NOT_SPECIFIED", "points": 0, "multiplier": 1, "commandCount": 0, "shopUpgrades": {"multiplier++": 0, "multiplier**": false, "end": false, "shopUpgradesPurchased": 0}, "settings": {"useAnimation": true, "autoSaveEveryCommand": true}, "savedataVersion": "v0.0.5-alpha"}
+{"username": "ERR_NOT_SPECIFIED", "points": 0, "multiplier": 1, "commandCount": 0, "shopUpgrades": {"multiplier++": 0, "multiplier**": false, "end": false, "shopUpgradesPurchased": 0}, "settings": {"animationType": "char", "autoSaveEveryCommand": true}, "savedataVersion": "v0.0.6.3-alpha"}
