@@ -1,6 +1,6 @@
 import platform, time, tkinter, random, json, os, webbrowser
 
-lcp_version = "v0.0.6-alpha"
+lcp_version = "v0.0.6.3-alpha"
 
 """
 LCP will automatically raise a ForceQuitted error when needed.
@@ -14,7 +14,7 @@ def animated_print(message: str, delay: int = 0.003, end: bool = True) -> None:
     if end:
         print("")
 
-def animated_input(message: str, delay: int = 0.003):
+def animated_input(message: str, delay: int = 0.003) -> object:
     animated_print(message, delay, False)
     return input("")
 
@@ -57,7 +57,7 @@ except FileNotFoundError:
     animated_print("Savedata was not found. Creating a brand-new empty savedata for you...")
     try:
         with open(savefile_path, "w") as file:
-            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": false, \"end\": false, \"shopUpgradesPurchased\": 0}, \"settings\": {\"animationType\": true, \"autoSaveEveryCommand\": true}, \"savedataVersion\": \"%s\"}" % lcp_version)
+            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": false, \"end\": false, \"shopUpgradesPurchased\": 0}, \"settings\": {\"animationType\": \"char\", \"autoSaveEveryCommand\": true}, \"savedataVersion\": \"%s\"}" % lcp_version)
         with open(savefile_path, "r") as saveddata:
             savedata = json.load(saveddata)
         del saveddata
@@ -83,41 +83,33 @@ shop_upgrades = savedata['shopUpgrades']
 settings = savedata['settings']
 
 global animation_type
+animation_type = settings['animationType']
 
-match (settings['animationType']):
-    case "char":
-        animation_type = 0.003
-    case "line":
-        animation_type = -1
-    case "none":
-        animation_type = 0
-
-def animated_print(message: str, delay: int = animation_type, end: bool = True) -> None:
+def animated_print(message: str, end: bool = True) -> None:
     match(animation_type):
-        case 0.003:
+        case "char":
             for char in message:
                 print(char, end = "", flush = True)
-                time.sleep(delay)
+                time.sleep(0.003)
             if end:
                 print("")
-        case -1:
-            for index, line in enumerate([item for item in message.splitlines()]):
-                if index == -1:
-                    print(line, flush = True)
-                    time.sleep(0.003)
-                else:
-                    print(line, end =  "", flush = True)
-                    time.sleep(0.003)
-            if end:
-                print("")
-        case 0:
+        case "line":
+            for lines in message.splitlines():
+                for char in list(lines):
+                    if char != "\n":
+                        print(char, end = "", flush = True)
+                    else:
+                        print(char, flush = True)
+                time.sleep(0.05)
+                if end: 
+                    print("")
+        case "none":
             print(message)
             if end:
                 print("")
 
-def animated_input(message: str, delay: int = animation_type) -> None:
-    
-    animated_print(message, delay, False)
+def animated_input() -> object:
+    animated_print("> ", False)
     return input("")
 
 def save_all_data():
@@ -128,22 +120,16 @@ def save_all_data():
     savedata['commandCount'] = command_count
     savedata['shopUpgrades'] = shop_upgrades
     savedata['settings'] = settings
-    match (settings['animationType']):
-        case "char":
-            animation_type = 0.003
-        case "line":
-            animation_type = -1
-        case "none":
-            animation_type = 0
+    savedata['settings']['animationType'] = animation_type
 
     with open(savefile_path, "w") as saveddata:
         json.dump(savedata, saveddata)
     del saveddata
 
 if username == "ERR_NOT_SPECIFIED":
-    animated_print("Your username was not found, what can this program call you?")
+    animated_print("Your username was not found, what can this program call you?\nEnter your new username!")
     while True:
-        new_username = animated_input("Enter your new username!\n> ").strip()
+        new_username = animated_input().strip()
         if new_username.lower() == "err_not_specified":
             animated_print(f"Failed to initialize new username because the username you're trying resembles a default placeholder name. Please try a different one.")
         elif len(new_username) < 3:
@@ -158,9 +144,9 @@ if username == "ERR_NOT_SPECIFIED":
     save_all_data()
 
 if len(username) < 3 or len(username) >= 20:
-    animated_print("Your username is either long or short. I know you edited the savedata, right? Anyways, please try a different one.")
+    animated_print("Your username is either long or short. I know you edited the savedata, right? Anyways, please try a different one.\nEnter your new username!")
     while True:
-        new_username = animated_input("Enter your new username!\n> ").strip()
+        new_username = animated_input().strip()
         if new_username.lower() == "err_not_specified":
             animated_print(f"Failed to initialize new username because the username you're trying resembles a default placeholder name. Please try a different one.")
         elif len(new_username) < 3:
@@ -190,7 +176,6 @@ help_message = f"""Here are all commands you can use in Lanzoor Command Panel as
 ?rps / ?rockpaperscissors: Play the rock paper scissors game.
 ?golt / ?greaterorlowerthan: Play the greater or lower than game.
 ?readme: Opens the README.md file for instructions.
-
 ?exit: Exit Lanzoor Command Panel.
 
 And, here are some few things that you should probably consider using Lanzoor Command Panel.
@@ -204,7 +189,7 @@ If you want to ask / suggest / compliment about anything in Lanzoor Command Pane
 animated_print(welcome_message)
 
 while True:
-    user_input = animated_input("> ").strip().lower()
+    user_input = animated_input().strip().lower()
     match user_input:
         case "?help":
             animated_print(help_message)
@@ -220,7 +205,7 @@ You will have to input the setting number. Choose a setting to change, and input
 
 1. Animation type: {Fore.BLUE if settings['animationType'] in ["char", "line"] else Fore.GREEN}{settings['animationType'].capitalize()}{Fore.RESET}
 {Style.DIM}Turn this option off if you want this program to run faster, because the animation gives a small delay.{Style.RESET_ALL}
-1. Autosave Every Command: {Fore.GREEN if settings['autoSaveEveryCommand'] else Fore.RED}{settings['autoSaveEveryCommand']}{Fore.RESET}
+2. Autosave Every Command: {Fore.GREEN if settings['autoSaveEveryCommand'] else Fore.RED}{settings['autoSaveEveryCommand']}{Fore.RESET}
 {Style.DIM}Turn this option off if it takes too long to process a command or you're on a low-performace device.
 In that case though, you should not try to force-quit the program (using ^C / Ctrl + C / ⌘ + C) to prevent any data loss.
 Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
@@ -228,7 +213,7 @@ Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
 {Fore.RED}4. RESET DATA{Fore.RESET}"""
             animated_print(settings_message)
             while True:
-                settings_input = animated_input("> ").strip().lower()
+                settings_input = animated_input().strip().lower()
                 match settings_input:
                     case "1":
                         animation_type_message = f"""Please choose what option to set the option \"Animation Type\" to using the function number, using the option name (char, line, none), or type ?exit or exit to cancel setting change.
@@ -238,21 +223,23 @@ Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
                         animated_print(animation_type_message)
                         changed = True
                         while True:
-                            animation_type_input = animated_input("> ").strip().lower()
+                            animation_type_input = animated_input().strip().lower()
                             match animation_type_input:
                                 case "1" | "char":
                                     settings['animationType'] = "char"
-                                    animation_type = 0.003
+                                    animation_type = "char"
                                     break
                                 case "2" | "line":
                                     settings['animationType'] = "line"
-                                    animation_type = -1
+                                    animation_type = "line"
                                     break
                                 case "3" | "none":
                                     settings['animationType'] = "none"
-                                    animation_type = 0
+                                    animation_type = "none"
                                 case "exit" | "?exit":
                                     changed = False
+                                case _:
+                                    continue
                         if changed:
                             save_all_data()
                             animated_print(f"Set the setting \"Animation Type\" to {Fore.BLUE}{settings['animationType']}{Fore.RESET}")
@@ -260,10 +247,11 @@ Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
                             animated_print("No changes made.")
                     case "2":
                         settings['autoSaveEveryCommand'] = not (settings['autoSaveEveryCommand'])
-                        animated_print(f"Set the setting \"Autosave Every Command\" to {Fore.GREEN if settings['autoSaveEveryCommand'] else Fore.RED + settings['autoSaveEveryCommand'] + Fore.RESET}")
+                        animated_print(f"Set the setting \"Autosave Every Command\" to {Fore.GREEN if settings['autoSaveEveryCommand'] else Fore.RED}{settings['autoSaveEveryCommand']}{Fore.RESET}")
                     case "3":
+                        animated_print("Enter your new username!\n")
                         while True:
-                            new_username = animated_input("Enter your new username!\n> ").strip()
+                            new_username = animated_input().strip()
                             if new_username.lower() == "err_not_specified":
                                 animated_print(f"Failed to initialize new username because the username you're trying resembles a default placeholder name. Please try a different one.")
                             elif len(new_username) < 3:
@@ -282,7 +270,7 @@ You can still continue on this savedata if you create backups of the savedata.js
 Once you perform this action, your savedata will be resetted without furthermore confirmations, and this program will automatically be closed.
 Are you sure that you want to delete your savedata? Input y to continue.{Fore.RESET}"""
                         animated_print(confirmation_message)
-                        confirmation_input = animated_input("> ").strip().lower()
+                        confirmation_input = animated_input().strip().lower()
                         if confirmation_input == "y":
                             
                             savedata['username'] = "ERR_NOT_SPECIFIED"
@@ -290,7 +278,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                             savedata['multiplier'] = 1
                             savedata['commandCount'] = 0
                             savedata['shopUpgrades'] = {"multiplier++": 0, "multiplier**": False, "end": False, "shopUpgradesPurchased": 0}
-                            savedata['settings'] = {"animationType": True, "autoSaveEveryCommand": True}
+                            savedata['settings'] = {"animationType": "char", "autoSaveEveryCommand": True}
                             savedata['savedataVersion'] = lcp_version
                             
                             with open(savefile_path, "w") as saveddata:
@@ -311,13 +299,15 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                 command_count += 1
         case "?rand" | "?random" | "?roll":
             while True:
-                minimum_number = animated_input("Enter the minimum number.\n> ")
+                animated_print("Enter the minimum number.")
+                minimum_number = animated_input()
                 try:
                     minimum_number = int(minimum_number)
                 except ValueError:
                     animated_print("Please enter a valid integer.")
                     continue
-                maximum_number = animated_input("Enter the maximum number.\n> ")
+                animated_print("Enter the minimum number.")
+                maximum_number = animated_input()
                 try:
                     maximum_number = int(maximum_number)
                 except ValueError:
@@ -338,7 +328,8 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
         case "?datetime" | "?timedate":
             animated_print(f"Your current date & time is {Style.BRIGHT + time.strftime(r"%B %d (%A), %Y | %X") + Style.RESET_ALL}.")
         case "?rps" | "?rockpaperscissors":
-            user_choice = animated_input("Choose one! Rock, Paper, or Scissors! You can also only input the first character of your choice.\n> ").strip().lower()
+            animated_print("Choose one! Rock, Paper, or Scissors! You can also only input the first character of your choice.")
+            user_choice = animated_input().strip().lower()
             match user_choice:
                 case "r":
                     user_choice = "rock"
@@ -351,7 +342,8 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
             computer_choice = random.choice(valid_rps_choice)
             
             while user_choice not in valid_rps_choice:
-                user_choice = animated_input("You silly, that is not a valid choice! Try again.\n> ").capitalize().replace(" ","")
+                animated_print("You silly, that is not a valid choice! Try again.")
+                user_choice = animated_input().capitalize().replace(" ","")
             
             if computer_choice == user_choice:
                 win_state = "It's a draw!"
@@ -373,8 +365,9 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
         case "?golt" | "?greaterorlowerthan":
             choice = random.randint(1, 100)
             attempts = 0
+            animated_print("Enter your guess! Type rules or !rules to view the rules, or exit or ?exit to exit.\n")
             while True:
-                user_choice = animated_input("Enter your guess! Type rules or !rules to view the rules, or exit or ?exit to exit.\n> ").strip()
+                user_choice = animated_input().strip()
                 if user_choice.lower() == "rules" or user_choice.lower() == "!rules":
                     animated_print("""Golt, aka greater or lower than game is a game where you guess a number.
 I will randomly pick a number between 1 and 100 (inclusive), and your goal is to guess the number.
@@ -428,7 +421,7 @@ Have fun!""")
     if settings['autoSaveEveryCommand']:
         save_all_data()
 
-animated_print(f"Goodbye {Fore.BLUE + username + Fore.RESET}, see you again!")
+animated_print(f"Goodbye {Fore.BLUE + username + Fore.RESET}, we hope to see you again!")
 
 time.sleep(1)
 
