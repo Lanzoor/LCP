@@ -32,18 +32,37 @@ The ZIP file will include:
 
 Before you run Lanzoor Command Panel, you need to install some external libraries.
 
-```ps1
+```bash
 pip install colorama
 pip install pyautogui
 pip install keyboard
 pip install requests
 ```
 
-If that doesn't work, it's either two cases; you don't have Python in your PATH, you should retrace your steps back to **Installing the Python Interpreter**, **OR** pip is outdated and does not match the current Python version. Run this command if its this case;
+If that doesn't work, it's either three cases;
 
-```ps1
+### 1. For some reason, pip can't be recognized as a command. In this case, you should use this command.
+
+```bash
+py -m pip install blahblahblah
+```
+
+Note that you should change this script correspondingly to the python command that you usually refer to. If `py` doesn't work, try `python`, `python3`, or `python3.13`.
+
+### 2. Your pip is outdated. In this case, the install command will work without any problem, but to prevent any furthermore issues, run this command.
+
+```bash
 py -m pip install --upgrade pip
 ```
+
+Note that you should change this script correspondingly to the python command that you usually refer to. If `py` doesn't work, try `python`, `python3`, or `python3.13`.
+
+### 3. Your Python is not on PATH.
+
+In the search bar (next to your Start menu / windows icon), type "Edit environment variables in your account", and click it.
+After that, click "Path" and click "Edit".
+If you don't see the Python interpreter in an `exe` format here, you should uninstall your Python interpreter and retrace your steps back to **Installing the Python Interpreter**.
+
 
 If you are done installing those files or the ZIP file, double click on the **main.py** file. It will show you a pop up, saying to choose which app/program to open this file with; click the option **Python**.
 
