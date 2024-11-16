@@ -182,7 +182,7 @@ help_message = f"""Here are all commands you can use in Lanzoor Command Panel as
 
 ?help: Displays this help message.
 ?stats / ?stat: Displays your stats.
-?settings / ?options: Displays the settings page.
+?settings / ?setting / ?options / ?option: Displays the settings page.
 ?rand / ?random / ?roll: Rolls a random number.
 ?date: Displays your date.
 ?time: Displays your time.
@@ -213,7 +213,7 @@ Your username is {Fore.BLUE + username + Fore.RESET}.
 You have used {Style.BRIGHT + str(command_count) + Style.RESET_ALL} commands (excluding this command).
 You have {Style.BRIGHT + str(points) + Style.RESET_ALL} points, and your point multiplier is {Style.BRIGHT + str(multiplier) + Style.RESET_ALL}.
 You have purchased {Style.BRIGHT + str(shop_upgrades['shopUpgradesPurchased']) + Style.RESET_ALL} shop upgrades.""")
-        case "?settings" | "?options":
+        case "?settings" | "?setting" | "?option" | "?options":
             settings_message = f"""Welcome to the settings page, you can tweak some settings here!
 You will have to input the setting number. Choose a setting to change, and input exit or ?exit to exit settings.
 
