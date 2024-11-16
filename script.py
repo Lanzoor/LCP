@@ -1,6 +1,6 @@
 import platform, time, tkinter, random, json, os, webbrowser
 
-lcp_version = "v0.0.6.3-alpha"
+lcp_version = "v0.1.2-beta"
 
 """
 LCP will automatically raise a ForceQuitted error when needed.
@@ -57,7 +57,7 @@ except FileNotFoundError:
     animated_print("Savedata was not found. Creating a brand-new empty savedata for you...")
     try:
         with open(savefile_path, "w") as file:
-            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": false, \"end\": false, \"shopUpgradesPurchased\": 0}, \"settings\": {\"animationType\": \"char\", \"autoSaveEveryCommand\": true}, \"savedataVersion\": \"%s\"}" % lcp_version)
+            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": 0, \"end\": false, \"shopUpgradesPurchased\": 0}, \"settings\": {\"animationType\": \"char\", \"autoSaveEveryCommand\": true}, \"savedataVersion\": \"%s\"}" % lcp_version)
         with open(savefile_path, "r") as saveddata:
             savedata = json.load(saveddata)
         del saveddata
@@ -108,9 +108,12 @@ def animated_print(message: str, end: bool = True) -> None:
             if end:
                 print("")
 
-def animated_input() -> object:
-    animated_print("> ", False)
+def animated_input(depth: int = 0) -> object:
+    animated_print(f"{" " * depth}> ", False)
     return input("")
+
+def view_ending() -> None:
+    ...
 
 def save_all_data():
     global savedata, username, points, multiplier, command_count, shop_upgrades, settings, animation_type
@@ -121,7 +124,7 @@ def save_all_data():
     savedata['shopUpgrades'] = shop_upgrades
     savedata['settings'] = settings
     savedata['settings']['animationType'] = animation_type
-
+    
     with open(savefile_path, "w") as saveddata:
         json.dump(savedata, saveddata)
     del saveddata
@@ -159,6 +162,15 @@ if len(username) < 3 or len(username) >= 20:
             savedata['username'] = new_username
             break
     save_all_data()
+
+if shop_upgrades['multiplier++'] > 100:
+    shop_upgrades['multiplier++'] = 100
+
+if shop_upgrades['multiplier**'] > 50:
+    shop_upgrades['multiplier**'] = 50
+
+if multiplier > 250:
+    multiplier = 250
 
 animated_print("Almost done! Applying settings...")
 
@@ -213,7 +225,7 @@ Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
 {Fore.RED}4. RESET DATA{Fore.RESET}"""
             animated_print(settings_message)
             while True:
-                settings_input = animated_input().strip().lower()
+                settings_input = animated_input(1).strip().lower()
                 match settings_input:
                     case "1":
                         animation_type_message = f"""Please choose what option to set the option \"Animation Type\" to using the function number, using the option name (char, line, none), or type ?exit or exit to cancel setting change.
@@ -223,7 +235,7 @@ Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
                         animated_print(animation_type_message)
                         changed = True
                         while True:
-                            animation_type_input = animated_input().strip().lower()
+                            animation_type_input = animated_input(2).strip().lower()
                             match animation_type_input:
                                 case "1" | "char":
                                     settings['animationType'] = "char"
@@ -251,7 +263,7 @@ Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
                     case "3":
                         animated_print("Enter your new username!\n")
                         while True:
-                            new_username = animated_input().strip()
+                            new_username = animated_input(2).strip()
                             if new_username.lower() == "err_not_specified":
                                 animated_print(f"Failed to initialize new username because the username you're trying resembles a default placeholder name. Please try a different one.")
                             elif len(new_username) < 3:
@@ -270,14 +282,14 @@ You can still continue on this savedata if you create backups of the savedata.js
 Once you perform this action, your savedata will be resetted without furthermore confirmations, and this program will automatically be closed.
 Are you sure that you want to delete your savedata? Input y to continue.{Fore.RESET}"""
                         animated_print(confirmation_message)
-                        confirmation_input = animated_input().strip().lower()
+                        confirmation_input = animated_input(2).strip().lower()
                         if confirmation_input == "y":
                             
                             savedata['username'] = "ERR_NOT_SPECIFIED"
                             savedata['points'] = 0
                             savedata['multiplier'] = 1
                             savedata['commandCount'] = 0
-                            savedata['shopUpgrades'] = {"multiplier++": 0, "multiplier**": False, "end": False, "shopUpgradesPurchased": 0}
+                            savedata['shopUpgrades'] = {"multiplier++": 0, "multiplier**": 0, "end": False, "shopUpgradesPurchased": 0}
                             savedata['settings'] = {"animationType": "char", "autoSaveEveryCommand": True}
                             savedata['savedataVersion'] = lcp_version
                             
@@ -300,14 +312,14 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
         case "?rand" | "?random" | "?roll":
             while True:
                 animated_print("Enter the minimum number.")
-                minimum_number = animated_input()
+                minimum_number = animated_input(1)
                 try:
                     minimum_number = int(minimum_number)
                 except ValueError:
                     animated_print("Please enter a valid integer.")
                     continue
                 animated_print("Enter the minimum number.")
-                maximum_number = animated_input()
+                maximum_number = animated_input(1)
                 try:
                     maximum_number = int(maximum_number)
                 except ValueError:
@@ -329,7 +341,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
             animated_print(f"Your current date & time is {Style.BRIGHT + time.strftime(r"%B %d (%A), %Y | %X") + Style.RESET_ALL}.")
         case "?rps" | "?rockpaperscissors":
             animated_print("Choose one! Rock, Paper, or Scissors! You can also only input the first character of your choice.")
-            user_choice = animated_input().strip().lower()
+            user_choice = animated_input(1).strip().lower()
             match user_choice:
                 case "r":
                     user_choice = "rock"
@@ -343,7 +355,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
             
             while user_choice not in valid_rps_choice:
                 animated_print("You silly, that is not a valid choice! Try again.")
-                user_choice = animated_input().capitalize().replace(" ","")
+                user_choice = animated_input(1).capitalize().replace(" ","")
             
             if computer_choice == user_choice:
                 win_state = "It's a draw!"
@@ -367,7 +379,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
             attempts = 0
             animated_print("Enter your guess! Type rules or !rules to view the rules, or exit or ?exit to exit.\n")
             while True:
-                user_choice = animated_input().strip()
+                user_choice = animated_input(1).strip()
                 if user_choice.lower() == "rules" or user_choice.lower() == "!rules":
                     animated_print("""Golt, aka greater or lower than game is a game where you guess a number.
 I will randomly pick a number between 1 and 100 (inclusive), and your goal is to guess the number.
@@ -387,6 +399,7 @@ Have fun!""")
                     animated_print("My number is lower than your choice, try again!")
                 elif user_choice > 100:
                     animated_print("Hey, that was out of the range!")
+                    continue
                 elif choice > user_choice:
                     animated_print("My number is greater than your choice, try again!")
                 elif choice == user_choice:
@@ -396,12 +409,87 @@ Have fun!""")
                     break
                 attempts += 1
             if recieve_points:
-                pending_points = (10 - attempts) * multiplier
+                pending_points = (15 - attempts) * multiplier
                 points += pending_points
             if pending_points <= 0:
                 animated_print(f"You used too many attempts in this game! You didn't gain any points.")
             elif recieve_points:
                 animated_print(f"You gained {pending_points} points in this game.")
+        case "?shop":
+            mpp_cost = (shop_upgrades['multiplier++'] + 1) * 8 + (shop_upgrades['multiplier++'] + 2) * 2
+            mmm_cost = (shop_upgrades['multiplier**'] + 2) * 255 + (shop_upgrades['multiplier**'] + 3) * 3
+            shop_message = f"""Welcome to the shop! You can buy upgrades with your points here. Input the item number to purchase, and type ?exit or exit to exit the shop!!
+{Fore.YELLOW if shop_upgrades['multiplier++'] >= 100 else ""}1. Multiplier++ (Cost: {str(mpp_cost) if shop_upgrades['multiplier++'] < 50 else "MAX"}){Fore.RESET}
+{Style.DIM}Adds 1 to your multiplier.{Style.RESET_ALL}
+{Fore.YELLOW if shop_upgrades['multiplier**'] >= 50 else ""}2. Multiplier** (Cost: {str(mmm_cost) if shop_upgrades['multiplier**'] < 100 else ""}){Fore.RESET}
+{Style.DIM}Adds 3 to your multiplier.{Style.RESET_ALL}
+{Fore.YELLOW if shop_upgrades['end'] else ""}3. {"???" if not shop_upgrades['end'] else "End"} (Cost: {"400 commands used (won't be spent), 200000 points (will be spent), 250 multiplier (max multiplier, won't be spent)" if not shop_upgrades['end'] >= 50 else "MAX"}){Fore.RESET}
+{Style.DIM}{"??????? ??? ??????." if not shop_upgrades['end'] else "Unlocks the ending."}{Style.RESET_ALL}
+"""
+            animated_print(shop_message)
+            while True:
+                mpp_cost = (shop_upgrades['multiplier++'] + 1) * 8 + (shop_upgrades['multiplier++'] + 2) * 2
+                mmm_cost = (shop_upgrades['multiplier**'] + 2) * 255 + (shop_upgrades['multiplier**'] + 3) * 3
+                settings_input = animated_input(1).strip().lower()
+                match settings_input:
+                    case "1":
+                        if shop_upgrades['multiplier++'] >= 100:
+                            animated_print("You already maximized this upgrade!")
+                            continue
+                        if points >= mpp_cost:
+                            animated_print("You have enough points to purchase this upgrade. Are you sure that you want to purchase this upgrade? Enter y to continue.")
+                            last_confirmation = animated_input(2).strip().lower()
+                            if last_confirmation == "y":
+                                points -= mpp_cost
+                                multiplier += 1
+                                shop_upgrades['multiplier++'] += 1
+                                animated_print(f"Purchase successful! You spent {Style.BRIGHT}{mpp_cost}{Style.RESET_ALL} points. You now have {Style.BRIGHT}{points}{Style.RESET_ALL} points and {Style.BRIGHT}{multiplier}{Style.RESET_ALL} multiplier.")
+                            else:
+                                animated_print("Purchase canceled.")
+                        else:
+                            animated_print("You do not have enough points to purchase this upgrade, please try later!")
+                            continue
+                    case "2":
+                        if shop_upgrades['multiplier**'] >= 50:
+                            animated_print("You already maximized this upgrade!")
+                            continue
+                        if points >= mpp_cost:
+                            animated_print("You have enough points to purchase this upgrade. Are you sure that you want to purchase this upgrade? Enter y to continue.")
+                            last_confirmation = animated_input(2).strip().lower()
+                            if last_confirmation == "y":
+                                points -= mpp_cost
+                                multiplier += 3
+                                shop_upgrades['multiplier**'] += 1
+                                animated_print(f"Purchase successful! You spent {Style.BRIGHT}{mpp_cost}{Style.DIM} points. You now have {Style.BRIGHT}{points}{Style.RESET_ALL} points and {Style.BRIGHT}{multiplier}{Style.RESET_ALL} multiplier.")
+                            else:
+                                animated_print("Purchase canceled.")
+                        else:
+                            animated_print("You do not have enough points to purchase this upgrade, please try later!")
+                            continue
+                    case "3":
+                        if shop_upgrades['end']:
+                            animated_print("You already bought this upgrade! If you want to view the ending again, use your newly unlocked command ?ending!")
+                            continue
+                        if points >= 200000 and multiplier == 250 and command_count >= 400:
+                            animated_print(f"You have enough resources to purchase this upgrade. Are you sure that you want to purchase this upgrade?\n{Fore.RED}WARNING: This action is irreversable. This also breaks the space continuum. Enter y to continue...{Fore.RESET}")
+                            last_confirmation = animated_input(2)
+                            if last_confirmation == "y":
+                                points -= 200000
+                                shop_upgrades['end'] = True
+                                view_ending()
+                                break
+                            else:
+                                animated_print("Purchase canceled.")
+                        else:
+                            animated_print("You do not have enough resources to purchase this upgrade, please try later!")
+                            continue
+                    case "?exit" | "exit":
+                        animated_print("Exited the shop.")
+                        break
+                    case _:
+                        continue
+                save_all_data()
+                command_count += 1
         case "?readme":
             animated_print("Beaming information to your web browser...")
             webbrowser.open_new("https://github.com/Lanzoor/LCP/blob/main/README.md")
@@ -410,11 +498,12 @@ Have fun!""")
             break
         case "f":
             animated_print("You pressed f to pay respect. 🙏")
+            command_count -= 1
         case "?ending":
             if not shop_upgrades['end']:
-                animated_print("You can't use this command yet...")
+                animated_print(random.choice(["You simply can't.", "Access denied.", "Without upgrades, it can't be,", "You don't have access to this command yet...", "The lockwall won't be destroyed no matter what you try...", "Cam't, good luck."]))
             else:
-                pass # Add one along with the end upgrade
+                view_ending()
         case _:
             continue
     command_count += 1
@@ -423,6 +512,6 @@ Have fun!""")
 
 animated_print(f"Goodbye {Fore.BLUE + username + Fore.RESET}, we hope to see you again!")
 
-time.sleep(1)
+time.sleep(2.5)
 
 raise ForceQuitted("User exited intentionally.")
