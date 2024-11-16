@@ -1,6 +1,6 @@
 import platform, time, tkinter, random, json, os, webbrowser
 
-lcp_version = "v0.1.2-beta"
+lcp_version = "v0.1.3-beta"
 
 """
 LCP will automatically raise a ForceQuitted error when needed.
@@ -169,8 +169,10 @@ if shop_upgrades['multiplier++'] > 100:
 if shop_upgrades['multiplier**'] > 50:
     shop_upgrades['multiplier**'] = 50
 
-if multiplier > 250:
-    multiplier = 250
+absolute_multiplier = (shop_upgrades['multiplier++'] + shop_upgrades['multiplier**'] * 3) + 1
+
+if absolute_multiplier != multiplier:
+    multiplier = absolute_multiplier
 
 animated_print("Almost done! Applying settings...")
 
@@ -180,7 +182,7 @@ help_message = f"""Here are all commands you can use in Lanzoor Command Panel as
 
 ?help: Displays this help message.
 ?stats / ?stat: Displays your stats.
-?settings: Displays the settings page.
+?settings / ?options: Displays the settings page.
 ?rand / ?random / ?roll: Rolls a random number.
 ?date: Displays your date.
 ?time: Displays your time.
@@ -188,6 +190,7 @@ help_message = f"""Here are all commands you can use in Lanzoor Command Panel as
 ?rps / ?rockpaperscissors: Play the rock paper scissors game.
 ?golt / ?greaterorlowerthan: Play the greater or lower than game.
 ?readme: Opens the README.md file for instructions.
+?shop: Opens the shop.
 ?exit: Exit Lanzoor Command Panel.
 
 And, here are some few things that you should probably consider using Lanzoor Command Panel.
@@ -195,8 +198,7 @@ And, here are some few things that you should probably consider using Lanzoor Co
 This program is NOT case sensitive. This means that for using commands, it will still properly work if you input something like ?HeLP instead of ?help.
 This program is entirely built in Python (with the help of a json file but that's only a json file not an actual program).
 If you want to enjoy the true game, I definitely recommend playing the game without taking a peek at the game files / modifying the savefile.
-If you want to ask / suggest / compliment about anything in Lanzoor Command Panel, feel free to ask me in Discord! (lanzoor)
-"""
+If you want to ask / suggest / compliment about anything in Lanzoor Command Panel, feel free to ask me in Discord! (lanzoor)"""
 
 animated_print(welcome_message)
 
@@ -211,7 +213,7 @@ Your username is {Fore.BLUE + username + Fore.RESET}.
 You have used {Style.BRIGHT + str(command_count) + Style.RESET_ALL} commands (excluding this command).
 You have {Style.BRIGHT + str(points) + Style.RESET_ALL} points, and your point multiplier is {Style.BRIGHT + str(multiplier) + Style.RESET_ALL}.
 You have purchased {Style.BRIGHT + str(shop_upgrades['shopUpgradesPurchased']) + Style.RESET_ALL} shop upgrades.""")
-        case "?settings":
+        case "?settings" | "?options":
             settings_message = f"""Welcome to the settings page, you can tweak some settings here!
 You will have to input the setting number. Choose a setting to change, and input exit or ?exit to exit settings.
 
@@ -377,7 +379,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
         case "?golt" | "?greaterorlowerthan":
             choice = random.randint(1, 100)
             attempts = 0
-            animated_print("Enter your guess! Type rules or !rules to view the rules, or exit or ?exit to exit.\n")
+            animated_print("Enter your guess! Type rules or !rules to view the rules, or exit or ?exit to exit.")
             while True:
                 user_choice = animated_input(1).strip()
                 if user_choice.lower() == "rules" or user_choice.lower() == "!rules":
@@ -389,6 +391,7 @@ Have fun!""")
                 elif user_choice.lower() == "exit" or user_choice.lower() == "?exit":
                     animated_print("Exited golt.")
                     recieve_points = False
+                    pending_points = 1
                     break
                 try:
                     user_choice = int(user_choice)
@@ -419,13 +422,12 @@ Have fun!""")
             mpp_cost = (shop_upgrades['multiplier++'] + 1) * 8 + (shop_upgrades['multiplier++'] + 2) * 2
             mmm_cost = (shop_upgrades['multiplier**'] + 2) * 255 + (shop_upgrades['multiplier**'] + 3) * 3
             shop_message = f"""Welcome to the shop! You can buy upgrades with your points here. Input the item number to purchase, and type ?exit or exit to exit the shop!!
-{Fore.YELLOW if shop_upgrades['multiplier++'] >= 100 else ""}1. Multiplier++ (Cost: {str(mpp_cost) if shop_upgrades['multiplier++'] < 50 else "MAX"}){Fore.RESET}
+{Fore.YELLOW if shop_upgrades['multiplier++'] >= 100 else ""}1. Multiplier++ (Cost: {str(mpp_cost) if shop_upgrades['multiplier++'] < 100 else "MAX"}){Fore.RESET}
 {Style.DIM}Adds 1 to your multiplier.{Style.RESET_ALL}
-{Fore.YELLOW if shop_upgrades['multiplier**'] >= 50 else ""}2. Multiplier** (Cost: {str(mmm_cost) if shop_upgrades['multiplier**'] < 100 else ""}){Fore.RESET}
+{Fore.YELLOW if shop_upgrades['multiplier**'] >= 50 else ""}2. Multiplier** (Cost: {str(mmm_cost) if shop_upgrades['multiplier**'] < 50 else "MAX"}){Fore.RESET}
 {Style.DIM}Adds 3 to your multiplier.{Style.RESET_ALL}
-{Fore.YELLOW if shop_upgrades['end'] else ""}3. {"???" if not shop_upgrades['end'] else "End"} (Cost: {"400 commands used (won't be spent), 200000 points (will be spent), 250 multiplier (max multiplier, won't be spent)" if not shop_upgrades['end'] >= 50 else "MAX"}){Fore.RESET}
-{Style.DIM}{"??????? ??? ??????." if not shop_upgrades['end'] else "Unlocks the ending."}{Style.RESET_ALL}
-"""
+{Fore.YELLOW if shop_upgrades['end'] else ""}3. {"???" if not shop_upgrades['end'] else "End"} (Cost: {"400 commands used (won't be spent), 200000 points (will be spent), 251 multiplier (max multiplier, won't be spent)" if not shop_upgrades['end'] else "MAX"}){Fore.RESET}
+{Style.DIM}{"??????? ??? ??????." if not shop_upgrades['end'] else "Unlocks the ending."}{Style.RESET_ALL}"""
             animated_print(shop_message)
             while True:
                 mpp_cost = (shop_upgrades['multiplier++'] + 1) * 8 + (shop_upgrades['multiplier++'] + 2) * 2
@@ -443,6 +445,7 @@ Have fun!""")
                                 points -= mpp_cost
                                 multiplier += 1
                                 shop_upgrades['multiplier++'] += 1
+                                shop_upgrades['shopUpgradesPurchased'] += 1
                                 animated_print(f"Purchase successful! You spent {Style.BRIGHT}{mpp_cost}{Style.RESET_ALL} points. You now have {Style.BRIGHT}{points}{Style.RESET_ALL} points and {Style.BRIGHT}{multiplier}{Style.RESET_ALL} multiplier.")
                             else:
                                 animated_print("Purchase canceled.")
@@ -460,6 +463,7 @@ Have fun!""")
                                 points -= mpp_cost
                                 multiplier += 3
                                 shop_upgrades['multiplier**'] += 1
+                                shop_upgrades['shopUpgradesPurchased'] += 1
                                 animated_print(f"Purchase successful! You spent {Style.BRIGHT}{mpp_cost}{Style.DIM} points. You now have {Style.BRIGHT}{points}{Style.RESET_ALL} points and {Style.BRIGHT}{multiplier}{Style.RESET_ALL} multiplier.")
                             else:
                                 animated_print("Purchase canceled.")
@@ -470,12 +474,13 @@ Have fun!""")
                         if shop_upgrades['end']:
                             animated_print("You already bought this upgrade! If you want to view the ending again, use your newly unlocked command ?ending!")
                             continue
-                        if points >= 200000 and multiplier == 250 and command_count >= 400:
+                        if points >= 200000 and multiplier == 251 and command_count >= 400:
                             animated_print(f"You have enough resources to purchase this upgrade. Are you sure that you want to purchase this upgrade?\n{Fore.RED}WARNING: This action is irreversable. This also breaks the space continuum. Enter y to continue...{Fore.RESET}")
                             last_confirmation = animated_input(2)
                             if last_confirmation == "y":
                                 points -= 200000
                                 shop_upgrades['end'] = True
+                                shop_upgrades['shopUpgradesPurchased'] += 1
                                 view_ending()
                                 break
                             else:
