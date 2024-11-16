@@ -1,6 +1,6 @@
 import platform, time, tkinter, random, json, os, webbrowser
 
-lcp_version = "v0.1.3-beta"
+lcp_version = "v0.2-beta"
 
 """
 LCP will automatically raise a ForceQuitted error when needed.
@@ -37,7 +37,6 @@ It's highly recommended to run this program in a VSCode terminal if you want to 
 animated_print(f"Recommended Windows version passed! (Recommended: Windows 11~, Current: {windows_version})")
 
 try:
-    import pyautogui, keyboard
     from colorama import Fore, Style
 except ImportError:
     animated_print("""Seems like you didn't properly install the required packages for this project.
@@ -312,29 +311,40 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                 save_all_data()
                 command_count += 1
         case "?rand" | "?random" | "?roll":
+            error = False
             while True:
-                animated_print("Enter the minimum number.")
-                minimum_number = animated_input(1)
-                try:
-                    minimum_number = int(minimum_number)
-                except ValueError:
-                    animated_print("Please enter a valid integer.")
+                while True:
+                    animated_print("Enter the minimum number.")
+                    minimum_number = animated_input(1)
+                    try:
+                        minimum_number = int(minimum_number)
+                        break
+                    except ValueError:
+                        animated_print("Please enter a valid integer.")
+                        continue
+                while True:
+                    animated_print("Enter the maximum number.")
+                    maximum_number = animated_input(1)
+                    try:
+                        maximum_number = int(maximum_number)
+                    except ValueError:
+                        animated_print("Please enter a valid integer.")
+                        continue
+                    if minimum_number > maximum_number:
+                        animated_print(Style.DIM + "You silly! The minimum number can't be larger can the maximum number." + Style.RESET_ALL)
+                        error = True
+                        break
+                    if minimum_number == maximum_number:
+                        animated_print(Style.DIM + "You silly! Both numbers can't be the same, otherwise it would always return the number and breaks the entire concept of random!" + Style.RESET_ALL)
+                        error = True
+                        break
+                if error:
+                    error = False
                     continue
-                animated_print("Enter the minimum number.")
-                maximum_number = animated_input(1)
-                try:
-                    maximum_number = int(maximum_number)
-                except ValueError:
-                    animated_print("Please enter a valid integer.")
-                    continue
-                if minimum_number > maximum_number:
-                    animated_print(Style.DIM + "You silly! The minimum number can't be larger can the maximum number." + Style.RESET_ALL)
-                    continue
-                if minimum_number == maximum_number:
-                    animated_print(Style.DIM + "You silly! Both numbers can't be the same, otherwise it would always return the number and breaks the entire concept of random!" + Style.RESET_ALL)
-                    continue
-                break
+                else:
+                    break
             animated_print(f"You picked {Style.BRIGHT}{minimum_number}{Style.RESET_ALL} as your minimum number, and {Style.BRIGHT}{maximum_number}{Style.RESET_ALL} as your maxmimum number. Your result is {Style.BRIGHT}{random.randint(minimum_number, maximum_number)}{Style.RESET_ALL}.")
+        
         case "?date":
             animated_print(f"Your current date is {Style.BRIGHT + time.strftime(r"%B %d (%A), %Y") + Style.RESET_ALL}.")
         case "?time":
@@ -343,22 +353,21 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
             animated_print(f"Your current date & time is {Style.BRIGHT + time.strftime(r"%B %d (%A), %Y | %X") + Style.RESET_ALL}.")
         case "?rps" | "?rockpaperscissors":
             animated_print("Choose one! Rock, Paper, or Scissors! You can also only input the first character of your choice.")
-            user_choice = animated_input(1).strip().lower()
-            match user_choice:
-                case "r":
-                    user_choice = "rock"
-                case "p":
-                    user_choice = "paper"
-                case "s":
-                    user_choice = "scissors"
-            
-            valid_rps_choice = ["rock", "paper", "scissors"]
-            computer_choice = random.choice(valid_rps_choice)
-            
-            while user_choice not in valid_rps_choice:
-                animated_print("You silly, that is not a valid choice! Try again.")
-                user_choice = animated_input(1).capitalize().replace(" ","")
-            
+            while True:
+                user_choice = animated_input(1).strip().lower()
+                match user_choice:
+                    case "r":
+                        user_choice = "rock"
+                    case "p":
+                        user_choice = "paper"
+                    case "s":
+                        user_choice = "scissors"
+                valid_rps_choice = ["rock", "paper", "scissors"]
+                computer_choice = random.choice(valid_rps_choice)
+                if user_choice not in valid_rps_choice:
+                    animated_print("You silly, that is not a valid choice! Try again.")
+                    continue
+                break
             if computer_choice == user_choice:
                 win_state = "It's a draw!"
                 pending_points = 2
@@ -419,8 +428,8 @@ Have fun!""")
             elif recieve_points:
                 animated_print(f"You gained {pending_points} points in this game.")
         case "?shop":
-            mpp_cost = (shop_upgrades['multiplier++'] + 1) * 8 + (shop_upgrades['multiplier++'] + 2) * 2
-            mmm_cost = (shop_upgrades['multiplier**'] + 2) * 255 + (shop_upgrades['multiplier**'] + 3) * 3
+            mpp_cost = (shop_upgrades['multiplier++'] + 1) * 14 + (shop_upgrades['multiplier++'] + 2) * 4 if shop_upgrades['multiplier++'] > 1 else 20
+            mmm_cost = (shop_upgrades['multiplier**'] + 2) * 255 + (shop_upgrades['multiplier**'] + 3) * 6
             shop_message = f"""Welcome to the shop! You can buy upgrades with your points here. Input the item number to purchase, and type ?exit or exit to exit the shop!!
 {Fore.YELLOW if shop_upgrades['multiplier++'] >= 100 else ""}1. Multiplier++ (Cost: {str(mpp_cost) if shop_upgrades['multiplier++'] < 100 else "MAX"}){Fore.RESET}
 {Style.DIM}Adds 1 to your multiplier.{Style.RESET_ALL}
@@ -430,8 +439,8 @@ Have fun!""")
 {Style.DIM}{"??????? ??? ??????." if not shop_upgrades['end'] else "Unlocks the ending."}{Style.RESET_ALL}"""
             animated_print(shop_message)
             while True:
-                mpp_cost = (shop_upgrades['multiplier++'] + 1) * 8 + (shop_upgrades['multiplier++'] + 2) * 2
-                mmm_cost = (shop_upgrades['multiplier**'] + 2) * 255 + (shop_upgrades['multiplier**'] + 3) * 3
+                mpp_cost = (shop_upgrades['multiplier++'] + 1) * 14 + (shop_upgrades['multiplier++'] + 2) * 4 if shop_upgrades['multiplier++'] > 1 else 20
+                mmm_cost = (shop_upgrades['multiplier**'] + 2) * 255 + (shop_upgrades['multiplier**'] + 3) * 6
                 settings_input = animated_input(1).strip().lower()
                 match settings_input:
                     case "1":
@@ -450,7 +459,7 @@ Have fun!""")
                             else:
                                 animated_print("Purchase canceled.")
                         else:
-                            animated_print("You do not have enough points to purchase this upgrade, please try later!")
+                            animated_print(f"You do not have enough points to purchase this upgrade, please try later! (Required: {mpp_cost} points, Current: {points} points)")
                             continue
                     case "2":
                         if shop_upgrades['multiplier**'] >= 50:
@@ -460,15 +469,15 @@ Have fun!""")
                             animated_print("You have enough points to purchase this upgrade. Are you sure that you want to purchase this upgrade? Enter y to continue.")
                             last_confirmation = animated_input(2).strip().lower()
                             if last_confirmation == "y":
-                                points -= mpp_cost
+                                points -= mmm_cost
                                 multiplier += 3
                                 shop_upgrades['multiplier**'] += 1
                                 shop_upgrades['shopUpgradesPurchased'] += 1
-                                animated_print(f"Purchase successful! You spent {Style.BRIGHT}{mpp_cost}{Style.DIM} points. You now have {Style.BRIGHT}{points}{Style.RESET_ALL} points and {Style.BRIGHT}{multiplier}{Style.RESET_ALL} multiplier.")
+                                animated_print(f"Purchase successful! You spent {Style.BRIGHT}{mmm_cost}{Style.RESET_ALL} points. You now have {Style.BRIGHT}{points}{Style.RESET_ALL} points and {Style.BRIGHT}{multiplier}{Style.RESET_ALL} multiplier.")
                             else:
                                 animated_print("Purchase canceled.")
                         else:
-                            animated_print("You do not have enough points to purchase this upgrade, please try later!")
+                            animated_print(f"You do not have enough points to purchase this upgrade, please try later! (Required: {mmm_cost} points, Current: {points} points)")
                             continue
                     case "3":
                         if shop_upgrades['end']:
@@ -506,9 +515,32 @@ Have fun!""")
             command_count -= 1
         case "?ending":
             if not shop_upgrades['end']:
-                animated_print(random.choice(["You simply can't.", "Access denied.", "Without upgrades, it can't be,", "You don't have access to this command yet...", "The lockwall won't be destroyed no matter what you try...", "Cam't, good luck."]))
+                animated_print(random.choice(["You simply can't.", "Access denied.", "Without upgrades, it can't be,", "You don't have access to this command yet...", "The lockwall won't be destroyed no matter what you try..."]))
             else:
                 view_ending()
+        case "?bet":
+            animated_print("Pick how many points you are going to bet. Enter half to allocate half your points, quarter to allocate a quarter of your points, and 0 to exit.")
+            while True:
+                points_on_bet = animated_input().strip().lower()
+                match points_on_bet:
+                    case "half":
+                        points_on_bet = points * 0.5
+                    case "quarter":
+                        points_on_bet = points * 0.25
+                    case _:
+                        try:
+                            points_on_bet = int(points_on_bet)
+                        except ValueError:
+                            animated_print("Please enter a valid integer!")
+                            continue
+                break
+            animated_print("Rolling wheel...")
+            time.sleep(random.randint(1, 3))
+            result = random.choice([0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 4, 5, 10])
+            pending_points = result * points_on_bet
+            animated_print(f"Your result was {result}, which means that your points were multiplied by {result}.")
+            points -= points_on_bet
+            points += pending_points
         case _:
             continue
     command_count += 1
