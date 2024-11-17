@@ -30,16 +30,13 @@ The ZIP file will include:
 
 ## Running Lanzoor Command Panel
 
-Before you run Lanzoor Command Panel, you need to install some external libraries.
+Before you run Lanzoor Command Panel, you need to install this external library.
 
 ```bash
 pip install colorama
-pip install pyautogui
-pip install keyboard
-pip install requests
 ```
 
-If that doesn't work, it's either three cases;
+If that doesn't work, it's either these cases;
 
 ### 1. For some reason, pip can't be recognized as a command. In this case, you should use this command.
 
@@ -63,8 +60,12 @@ In the search bar (next to your Start menu / windows icon), type "Edit environme
 After that, click "Path" and click "Edit".
 If you don't see the Python interpreter in an `exe` format here, you should uninstall your Python interpreter and retrace your steps back to **Installing the Python Interpreter**.
 
+### 4. Your Python is set to a venv.
 
-If you are done installing those files or the ZIP file, double click on the **main.py** file. It will show you a pop up, saying to choose which app/program to open this file with; click the option **Python**.
+This project does not require a venv to run, thus making it safe to switch to a global installation!
+
+
+If you are done installing those files or the ZIP file, double click on the **script.py** file. It will show you a pop up, saying to choose which app/program to open this file with; click the option **Python**.
 
 It will now open up the terminal, which is the Lanzoor Command Panel itself. Now have fun!
 
@@ -80,3 +81,5 @@ It will now open up the terminal, which is the Lanzoor Command Panel itself. Now
 ## Extra Information
 
 If you want to ask / suggest / compliment about anything in Lanzoor Command Panel, feel free to ask me in Discord! (lanzoor)
+
+Thank you for NSP in Discord for playtesting, balancing, reporting issues and more!
