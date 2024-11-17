@@ -21,12 +21,14 @@ If you are done downloading the Python interpreter. You can proceed downloading 
 ## Installing Lanzoor Command Panel
 
 Download the latest version of Lanzoor Command Panel by clicking [here](https://github.com/Lanzoor/LCP/releases/latest). Make sure to download the ZIP file. Now, unzip the ZIP file that you downloaded.
-The ZIP file will include:
-- **README.md**: Information that may be needed
-- **script.py**: The main program
-- **savedata.json**: Savefile for all of your progress.
 
-> NOTE: If you already have a savefile, you can just copy-paste your previous `savefile.json` file here.
+The ZIP file will include:
+- **`README.md`**: Information that may be needed
+- **`script.py`**: The main program
+- **`savedata.json`**: Savefile for all of your progress.
+- **`transfer_guide.md`**: A detailed guide on how to transfer your savedata into other versions.
+
+> NOTE: If you already have a savefile, you can just copy-paste your previous `savefile.json` file here. You should also check out the `transfer_guide.md` file if needed.
 
 ## Running Lanzoor Command Panel
 
@@ -65,7 +67,7 @@ If you don't see the Python interpreter in an `exe` format here, you should unin
 This project does not require a venv to run, thus making it safe to switch to a global installation!
 
 
-If you are done installing those files or the ZIP file, double click on the **script.py** file. It will show you a pop up, saying to choose which app/program to open this file with; click the option **Python**.
+If you are done installing those files or the ZIP file, double click on the **`script.py`** file. It will show you a pop up, saying to choose which app/program to open this file with; click the option **Python**.
 
 It will now open up the terminal, which is the Lanzoor Command Panel itself. Now have fun!
 
