@@ -6,10 +6,10 @@ Well, this guide is for you!
 
 ## Option 1: Edit savedata directly
 
-You're most likely going to [download a fresh new savefile](https://github.com/Lanzoor/LCP/blob/main/savedata.json). However, if you desire to use a specific version of a savefile,
+You're most likely going to [download a fresh new savefile](https://github.com/Lanzoor/LCP/blob/main/`savedata.json`). However, if you desire to use a specific version of a savefile,
 tweak around with the downloadable zip files from the [releases](https://github.com/Lanzoor/LCP/releases) list.
 
-Open the savedata.json file that you just downloaded, and open it. **You should still preserve your previous savedata in case you forget your stats.**
+Open the `savedata.json` file that you just downloaded, and open it. **You should still preserve your previous savedata in case you forget your stats.**
 Now, you can start editing the savedata directly. If you are not familiar with JSON files, check out [this document](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/JSON). You can simply transfer the old values to this file.
 
 **But- not sure what option this is?**
@@ -18,9 +18,9 @@ Seriously, the savefile format might've changed during a recent release.
 Don't worry though- the release notes should record all changes that were made!
 To clarify, here are some option names that are different between the script file and the JSON file;
 
-`??????` (`Ending`) shop upgrade (boolean) is `end` in the savedata.json file.
+`??????` (`Ending`) shop upgrade (boolean) is `end` in the `savedata.json` file.
 
-To make things more simple, the script.py file automatically changes values for you!
+To make things more simple, the `script.py` file automatically changes values for you!
 For example, you only need to change the shop upgrades and the script will automatically assign the correct value to the multiplier.
 **This means that you shouldn't directly edit the multiplier, because if multiplier count and the shop upgrades aren't corresponding, the script will always, refer to the shop upgrades.**
 
