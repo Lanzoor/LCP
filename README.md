@@ -83,5 +83,6 @@ It will now open up the terminal, which is the Lanzoor Command Panel itself. Now
 ## Extra Information
 
 If you want to ask / suggest / compliment about anything in Lanzoor Command Panel, feel free to ask me in Discord! (lanzoor)
+If you also want to transfer your savedata between multiple versions, send your current savefile to me in Discord.
 
 Thank you for NSP in Discord for playtesting, balancing, reporting issues and more!
