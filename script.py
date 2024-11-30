@@ -569,6 +569,7 @@ There is a limit, though; each purchase adds 10 to the maximum rounds count. Fir
                                 points -= bulk_cost
                                 shop_upgrades['bulkPlay'] += 1
                                 shop_upgrades['shopUpgradesPurchased'] += 1
+                                settings['useBulkPlay'] = 0
                                 animated_print(f"{Fore.GREEN}Purchase successful! You spent {Style.BRIGHT}{bulk_cost}{Style.NORMAL} points. You now have {Style.BRIGHT}{points}{Style.NORMAL} points.{Fore.RESET + Style.RESET_ALL}")
                             else:
                                 animated_print(f"{Fore.RED}Purchase canceled.{Fore.RESET}")
