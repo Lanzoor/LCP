@@ -1,6 +1,7 @@
-import platform, time, random, json, os, webbrowser
+import platform, time, random, json, os, webbrowser, base64
 
-lcp_version = "v0.7.1-beta"
+lcp_version = "v0.9-beta"
+encoded_lcp_version = base64.b64encode(lcp_version.encode()).decode()
 
 class ForceQuitted(Exception) : ...
 
@@ -20,7 +21,7 @@ animated_print("Starting inspection...")
 if not (int(platform.python_version_tuple()[2]) >= 10 or int(platform.python_version_tuple()[1]) >= 2):
     animated_print(f"You are running this program in an outdated version of the Python interpreter. Your current Python version is {platform.python_version()}, and at least version 3.10~ is recommended for this program.")
     time.sleep(5)
-    raise ForceQuitted("Program exited due to an outdated Python interpreter.")
+    raise ForceQuitted("Aborted; an outdated Python interpreter.")
 
 animated_print(f"Python interpreter version requirement passed! (Required: 3.10~, Current: {platform.python_version()})")
 
@@ -40,7 +41,7 @@ except ImportError:
 Unfortunately, we can't automatically install the packages for you / use pyInstaller because it comes with a huge risk and might not be compatiable with a lot of OS's.
 Please see if you are missing anything and follow everything in https://github.com/Lanzoor/LCP/blob/main/README.md !""")
     time.sleep(5)
-    raise ForceQuitted("Program exited due to missing dependencies.")
+    raise ForceQuitted("Aborted; missing dependencies.")
 
 animated_print("External libraries passed!")
 savefile_path = os.path.dirname(__file__) + "/savedata.json"
@@ -54,21 +55,21 @@ except FileNotFoundError:
     animated_print("Savedata was not found. Creating a brand-new empty savedata for you...")
     try:
         with open(savefile_path, "w") as file:
-            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": 0, \"end\": false, \"shopUpgradesPurchased\": 0, \"bulkPlay\": 0}, \"settings\": {\"animationType\": \"char\", \"autoSaveEveryCommand\": true, \"bulkPlay\": -1}, \"savedataVersion\": \"%s\"}" % lcp_version)
+            file.write("{\"username\": \"ERR_NOT_SPECIFIED\", \"points\": 0, \"multiplier\": 1, \"commandCount\": 0, \"shopUpgrades\": {\"multiplier++\": 0, \"multiplier**\": 0, \"end\": false, \"shopUpgradesPurchased\": 0, \"bulkPlay\": 0}, \"settings\": {\"animationType\": \"char\", \"autoSaveEveryCommand\": true, \"bulkPlay\": -1, \"confirmation\": true}, \"savedataVersion\": \"%s\"}" % encoded_lcp_version)
         with open(savefile_path, "r") as saveddata:
             savedata = json.load(saveddata)
         del saveddata
     except PermissionError:
         animated_print("Permission was denied. Perhaps you should download a brand-new savedata from https://github.com/Lanzoor/LCP/blob/main/savedata.json.")
         time.sleep(10)
-        raise ForceQuitted("Program exited due to savefile not existing.")
+        raise ForceQuitted("Aborted; savefile not existing.")
 
 savedata_version = savedata['savedataVersion']
 
-if savedata_version != lcp_version:
+if base64.b64decode(savedata_version.encode()).decode() != lcp_version:
     animated_print("Your savedata does not match your current version, please download one corresponding to your script version using https://github.com/Lanzoor/LCP/blob/main/savedata.json !")
     time.sleep(5)
-    raise ForceQuitted("Program exited due to an outdated savedata.json file.")
+    raise ForceQuitted("Aborted; an outdated savedata.json file.")
 
 username = savedata['username']
 points = savedata['points']
@@ -77,8 +78,7 @@ bulk_limit = savedata['shopUpgrades']['bulkPlay'] * 10
 command_count = savedata['commandCount']
 shop_upgrades = savedata['shopUpgrades']
 settings = savedata['settings']
-
-global animation_type
+confirmation = settings['confirmation']
 animation_type = settings['animationType']
 
 def animated_print(message: str, end: bool = True) -> None:
@@ -140,13 +140,15 @@ def view_ending() -> None:
     
 
 def save_all_data():
-    global savedata, username, points, multiplier, command_count, shop_upgrades, settings, animation_type
+    global savedata, username, points, multiplier, command_count, shop_upgrades, settings, animation_type, confirmation, encoded_lcp_version
     savedata['username'] = username
     savedata['points'] = points
     savedata['multiplier'] = multiplier
     savedata['commandCount'] = command_count
     savedata['shopUpgrades'] = shop_upgrades
     savedata['settings'] = settings
+    savedata['savedataVersion'] = encoded_lcp_version
+    savedata['settings']['confirmation'] = confirmation
     with open(savefile_path, "w") as saveddata:
         json.dump(savedata, saveddata)
     del saveddata
@@ -225,9 +227,9 @@ while True:
         case "?stats" | "?stat":
             animated_print(f"""Here are your stats on Lanzoor Command Panel;
 Your username is {Fore.BLUE + username + Fore.RESET}.
-You have used {Style.BRIGHT + str(command_count) + Style.RESET_ALL} commands (excluding this command).
+You have used {Style.BRIGHT + str(command_count) + Style.RESET_ALL} command(s) (excluding this command).
 You have {Style.BRIGHT + str(points) + Style.RESET_ALL} points, and your point multiplier is {Style.BRIGHT + str(multiplier) + Style.RESET_ALL}.
-You have purchased {Style.BRIGHT + str(shop_upgrades['shopUpgradesPurchased']) + Style.RESET_ALL} shop upgrades.""")
+You have purchased {Style.BRIGHT + str(shop_upgrades['shopUpgradesPurchased']) + Style.RESET_ALL} shop upgrade(s).""")
         case "?settings" | "?setting" | "?option" | "?options":
             settings_message = f"""Welcome to the settings page, you can tweak some settings here!
 You will have to input the setting number. Choose a setting to change, and input exit or ?exit to exit settings.
@@ -238,10 +240,12 @@ You will have to input the setting number. Choose a setting to change, and input
 {Style.DIM}Turn this option off if it takes too long to process a command or you're on a low-performace device.
 In that case though, you should not try to force-quit the program (using ^C / Ctrl + C / ⌘ + C) to prevent any data loss.
 Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
-{Style.DIM if bulk_limit == 0 else ""}3. Bulk Play: {Fore.GREEN if settings['useBulkPlay'] == 1 else (Fore.RED if settings['useBulkPlay'] == 0 else Style.DIM)}{"True" if settings['useBulkPlay'] == 1 else ("False" if settings['useBulkPlay'] == 0 else "Unavaliable")}{Style.RESET_ALL}{Fore.RESET}
+3. Bulk Play: {Fore.GREEN if settings['useBulkPlay'] == 1 else (Fore.RED if settings['useBulkPlay'] == 0 else Style.DIM)}{"True" if settings['useBulkPlay'] == 1 else ("False" if settings['useBulkPlay'] == 0 else "Unavaliable")}{Style.RESET_ALL}{Fore.RESET}
 {Style.DIM}{"You do not have access to this command yet.\n" if settings['useBulkPlay'] == -1 else ""}This option determines whenever you use the \"Bulk Play\" feature.{Style.RESET_ALL}
-4. Change Username
-{Fore.RED}5. RESET DATA{Fore.RESET}"""
+4: Shop Confirmation: {Fore.GREEN if settings['confirmation'] else Fore.RED}{settings['confirmation']}{Fore.RESET}
+{Style.DIM}This option turns on / off shop upgrade confirmation.{Style.RESET_ALL}
+5. Change Username
+{Fore.RED}6. RESET DATA{Fore.RESET}"""
             animated_print(settings_message)
             while True:
                 settings_input = animated_input(1).strip().lower()
@@ -282,11 +286,14 @@ Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
                         animated_print(f"Set the setting \"Autosave Every Command\" to {Fore.GREEN if settings['autoSaveEveryCommand'] else Fore.RED}{settings['autoSaveEveryCommand']}{Fore.RESET}")
                     case "3":
                         if settings['useBulkPlay'] == -1:
-                            animated_print("You do not have access to this option yet! Purchase the \"Bulk Buy\" upgrade in the shop to unlock!")
+                            animated_print("You do not have access to this option yet! Purchase the \"Bulk Play\" upgrade in the shop to unlock!")
                         else:
                             settings['useBulkPlay'] = 1 if settings['useBulkPlay'] == 0 else 0
                             animated_print(f"Set the setting \"Bulk Play\" to {Fore.GREEN if settings['useBulkPlay'] == 1 else Fore.RED}{bool(1 if settings['useBulkPlay'] == 1 else 0)}{Fore.RESET}")
                     case "4":
+                        settings['confirmation'] = not (settings['confirmation'])
+                        animated_print(f"Set the setting \"Shop Confirmation\" to {Fore.GREEN if settings['confirmation'] else Fore.RED}{settings['confirmation']}{Fore.RESET}")
+                    case "5":
                         animated_print("Enter your new username!")
                         while True:
                             new_username = animated_input(2).strip()
@@ -302,7 +309,7 @@ Savedata will be autosaved when you exit this program, though.{Style.RESET_ALL}
                                 savedata['username'] = new_username
                                 break
                         save_all_data()
-                    case "5":
+                    case "6":
                         confirmation_message = f"""{Fore.RED}Hold up! Before you reset your entire savedata...
 You can still continue on this savedata if you create backups of the savedata.json file before this action.
 Once you perform this action, your savedata will be resetted without furthermore confirmations, and this program will automatically be closed.
@@ -314,8 +321,8 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                             savedata['points'] = 0
                             savedata['multiplier'] = 1
                             savedata['commandCount'] = 0
-                            savedata['shopUpgrades'] = {"multiplier++": 0, "multiplier**": 0, "end": False, "shopUpgradesPurchased": 0, "bulkBuy": 0}
-                            savedata['settings'] = {"animationType": "char", "autoSaveEveryCommand": True, "useBulkPlay": -1}
+                            savedata['shopUpgrades'] = {"multiplier++": 0, "multiplier**": 0, "end": False, "shopUpgradesPurchased": 0, "bulkPlay": 0}
+                            savedata['settings'] = {"animationType": "char", "autoSaveEveryCommand": True, "useBulkPlay": -1, "confirmation": True}
                             savedata['savedataVersion'] = lcp_version
                             
                             with open(savefile_path, "w") as saveddata:
@@ -375,6 +382,7 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
             animated_print(f"Your current date & time is {Style.BRIGHT + time.strftime(r"%B %d (%A), %Y | %X") + Style.RESET_ALL}.")
         case "?rps" | "?rockpaperscissors":
             pending_points = 0
+            exit_game = False
             if settings['useBulkPlay'] == 1:
                 while True:
                     try:
@@ -386,26 +394,36 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                     if rounds > bulk_limit:
                         animated_print(f"You exceeded your current bulk play limit! (Limit: {int(bulk_limit)})")
                         continue
+                    if rounds == 0:
+                        animated_print("You can't play zero rounds!")
+                        continue
                     break
             else:
                 rounds = 1
             animated_print("Choose one! Rock, Paper, or Scissors! You can also only input the first character of your choice.")
             for rps_loops in range(1, rounds + 1):
-                user_choice = animated_input(1).strip().lower()
-                if user_choice == "r":
-                    user_choice = "rock"
-                elif user_choice == "p":
-                    user_choice = "paper"
-                elif user_choice == "s":
-                    user_choice = "scissors"
-                elif user_choice == "exit" or user_choice == "?exit":
-                    exit_game = True
+                while True:
+                    user_choice = animated_input(1).strip().lower()
+                    if user_choice == "r":
+                        user_choice = "rock"
+                    elif user_choice == "p":
+                        user_choice = "paper"
+                    elif user_choice == "s":
+                        user_choice = "scissors"
+                    elif user_choice == "exit" or user_choice == "?exit":
+                        exit_game = True
+                        break
+                    valid_rps_choice = ["rock", "paper", "scissors"]
+                    computer_choice = random.choice(valid_rps_choice)
+
+                    if user_choice not in valid_rps_choice:
+                        animated_print("You silly, that is not a valid choice! Try again.")
+                        continue
                     break
-                valid_rps_choice = ["rock", "paper", "scissors"]
-                computer_choice = random.choice(valid_rps_choice)
-                if user_choice not in valid_rps_choice:
-                    animated_print("You silly, that is not a valid choice! Try again.")
-                    continue
+                
+                if exit_game:
+                    break
+                
                 if computer_choice == user_choice:
                     win_state = "It's a draw!"
                     pending_points += 2 * multiplier
@@ -430,7 +448,6 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                 exit_game = False
             if exit_game:
                 animated_print("You exited your round(s).")
-                break
             if rounds != 1:
                 points += pending_points
                 animated_print(f"You gained a total of {pending_points} points. Good job!")
@@ -446,6 +463,9 @@ Are you sure that you want to delete your savedata? Input y to continue.{Fore.RE
                         continue
                     if rounds > bulk_limit:
                         animated_print(f"You exceeded your current bulk play limit! (Limit: {int(bulk_limit)})")
+                        continue
+                    if rounds == 0:
+                        animated_print("You can't play zero rounds!")
                         continue
                     break
             else:
@@ -482,7 +502,7 @@ Have fun!""")
                     elif choice == user_choice:
                         attempts += 1
                         animated_print(f"You've guessed it right! You used {attempts} attempts in this game, and the answer was {Style.BRIGHT}{choice}{Style.RESET_ALL}.")
-                        pending_points += (15 - attempts) * multiplier
+                        pending_points += (30 - attempts) * multiplier
                         if rounds == 1:
                             if pending_points != 0:
                                 points += pending_points
@@ -495,31 +515,28 @@ Have fun!""")
                         break
                 if exit_game:
                     animated_print("You exited your round(s).")
-                    break
             if rounds != 1:
                 points += pending_points
                 animated_print(f"You gained a total of {pending_points} points. Good job!")
         case "?shop":
-            mpp_cost = (shop_upgrades['multiplier++'] + 1) * 10 + (shop_upgrades['multiplier++'] + 2) * 4 if shop_upgrades['multiplier++'] > 1 else 20
-            mmm_cost = (shop_upgrades['multiplier**'] + 2) * 155 + (shop_upgrades['multiplier**'] + 3) * 6
-            bulk_cost = shop_upgrades['bulkPlay'] + 1 * 200
-            shop_message = f"""
-Welcome to the shop! You can buy upgrades with your points here. Input the item number to purchase, and type ?exit or exit to exit the shop!
+            mpp_cost = round((shop_upgrades['multiplier++'] + 1) * 10 + (shop_upgrades['multiplier++'] + 2) * 4 if shop_upgrades['multiplier++'] > 1 else 20)
+            mmm_cost = round((shop_upgrades['multiplier**'] + 2) * 155 + (shop_upgrades['multiplier**'] + 3) * 6)
+            bulk_cost = round(((shop_upgrades['bulkPlay'] + 1) * 200) ** 1.25)
+            shop_message = f"""Welcome to the shop! You can buy upgrades with your points here. Input the item number to purchase, and type ?exit or exit to exit the shop!
 {Fore.YELLOW if shop_upgrades['multiplier++'] >= 100 else ""}1. Multiplier++ (Cost: {str(mpp_cost) + " points" if shop_upgrades['multiplier++'] < 100 else "MAX"}, Purchased: {Style.BRIGHT}{shop_upgrades['multiplier++']} / 100{Style.RESET_ALL}){Fore.RESET}
 {Style.DIM}Adds 1 to your multiplier.{Style.RESET_ALL}
 {Fore.YELLOW if shop_upgrades['multiplier**'] >= 50 else ""}2. Multiplier** (Cost: {str(mmm_cost) + " points" if shop_upgrades['multiplier**'] < 50 else "MAX"}, Purchased: {Style.BRIGHT}{shop_upgrades['multiplier**']} / 50{Style.RESET_ALL})){Fore.RESET}
-{Fore.YELLOW if shop_upgrades['bulkPlay'] >= 4 else ""}3. Bulk Play (Cost: {str(bulk_cost) + " points" if shop_upgrades['bulkPlay'] >= 4 else "MAX"}, Purchased: {Style.BRIGHT}{shop_upgrades['bulkPlay']} / 4{Style.RESET_ALL})){Fore.RESET}
-{Style.DIM}Allows you to play multiple rounds of games at once. At first purchase, it will unlock the Bulk Play option which can be toggled in settings menu.
-There is a limit, though; each purchase adds 10 to the maximum rounds count. First purchase also starts with 10 maximum round count.
 {Style.DIM}Adds 3 to your multiplier.{Style.RESET_ALL}
+{Fore.YELLOW if shop_upgrades['bulkPlay'] >= 4 else ""}3. Bulk Play (Cost: {str(bulk_cost) + " points" if shop_upgrades['bulkPlay'] < 4 else "MAX"}, Purchased: {Style.BRIGHT}{shop_upgrades['bulkPlay']} / 4{Style.RESET_ALL})){Fore.RESET}
+{Style.DIM}Allows you to play multiple rounds of games at once. At first purchase, it will unlock the Bulk Play option which can be toggled in settings menu.
+There is a limit, though; each purchase adds 10 to the maximum rounds count. First purchase also starts with 10 maximum round count.{Style.RESET_ALL}
 {Fore.YELLOW if shop_upgrades['end'] else ""}4. {"???" if not shop_upgrades['end'] else "End"} (Cost: {"400 commands used (won't be spent), 200000 points (will be spent), 251 multiplier (max multiplier, won't be spent)" if not shop_upgrades['end'] else "MAX"}){Fore.RESET}
-{Style.DIM}{"??????? ??? ??????." if not shop_upgrades['end'] else "Unlocks the ending."}{Style.RESET_ALL}
-"""
+{Style.DIM}{"??????? ??? ??????." if not shop_upgrades['end'] else "Unlocks the ending."}{Style.RESET_ALL}"""
             animated_print(shop_message)
             while True:
-                mpp_cost = (shop_upgrades['multiplier++'] + 1) * 10 + (shop_upgrades['multiplier++'] + 2) * 4 if shop_upgrades['multiplier++'] > 1 else 20
-                mmm_cost = (shop_upgrades['multiplier**'] + 2) * 155 + (shop_upgrades['multiplier**'] + 3) * 6
-                bulk_cost = (shop_upgrades['bulkPlay'] + 1) * 200
+                mpp_cost = round((shop_upgrades['multiplier++'] + 1) * 10 + (shop_upgrades['multiplier++'] + 2) * 4 if shop_upgrades['multiplier++'] > 1 else 20)
+                mmm_cost = round((shop_upgrades['multiplier**'] + 2) * 155 + (shop_upgrades['multiplier**'] + 3) * 6)
+                bulk_cost = round(((shop_upgrades['bulkPlay'] + 1) * 200) ** 1.25)
                 settings_input = animated_input(1).strip().lower()
                 match settings_input:
                     case "1":
@@ -527,16 +544,23 @@ There is a limit, though; each purchase adds 10 to the maximum rounds count. Fir
                             animated_print(f"{Fore.YELLOW}You already maximized this upgrade!{Fore.RESET}")
                             continue
                         if points >= mpp_cost:
-                            animated_print(f"{Fore.YELLOW}You have enough points to purchase this upgrade. Are you sure that you want to purchase this upgrade? Enter y to continue.{Fore.RESET}")
-                            last_confirmation = animated_input(2).strip().lower()
-                            if last_confirmation == "y":
+                            if confirmation:
+                                animated_print(f"{Fore.YELLOW}You have enough points to purchase this upgrade. Are you sure that you want to purchase this upgrade? Enter y to continue.{Fore.RESET}")
+                                last_confirmation = animated_input(2).strip().lower()
+                                if last_confirmation == "y":
+                                    points -= mpp_cost
+                                    multiplier += 1
+                                    shop_upgrades['multiplier++'] += 1
+                                    shop_upgrades['shopUpgradesPurchased'] += 1
+                                    animated_print(f"{Fore.GREEN}Purchase successful! You spent {Style.BRIGHT}{mpp_cost}{Style.NORMAL} points. You now have {Style.BRIGHT}{points}{Style.NORMAL} points and {Style.BRIGHT}{multiplier}{Style.NORMAL} multiplier.{Fore.RESET + Style.RESET_ALL}")
+                                else:
+                                    animated_print(f"{Fore.RED}Purchase canceled.{Fore.RESET}")
+                            else:
                                 points -= mpp_cost
                                 multiplier += 1
                                 shop_upgrades['multiplier++'] += 1
                                 shop_upgrades['shopUpgradesPurchased'] += 1
                                 animated_print(f"{Fore.GREEN}Purchase successful! You spent {Style.BRIGHT}{mpp_cost}{Style.NORMAL} points. You now have {Style.BRIGHT}{points}{Style.NORMAL} points and {Style.BRIGHT}{multiplier}{Style.NORMAL} multiplier.{Fore.RESET + Style.RESET_ALL}")
-                            else:
-                                animated_print(f"{Fore.RED}Purchase canceled.{Fore.RESET}")
                         else:
                             animated_print(f"{Fore.RED}You do not have enough points to purchase this upgrade, please try later! (Required: {mpp_cost} points, Current: {points} points){Fore.RESET}")
                             continue
@@ -545,16 +569,22 @@ There is a limit, though; each purchase adds 10 to the maximum rounds count. Fir
                             animated_print(f"{Fore.YELLOW}You already maximized this upgrade!{Fore.RESET}")
                             continue
                         if points >= mmm_cost:
-                            animated_print(f"{Fore.YELLOW}You have enough points to purchase this upgrade. Are you sure that you want to purchase this upgrade? Enter y to continue.{Fore.RESET}")
-                            last_confirmation = animated_input(2).strip().lower()
-                            if last_confirmation == "y":
-                                points -= mmm_cost
+                            if confirmation:
+                                animated_print(f"{Fore.YELLOW}You have enough points to purchase this upgrade. Are you sure that you want to purchase this upgrade? Enter y to continue.{Fore.RESET}")
+                                last_confirmation = animated_input(2).strip().lower()
+                                if last_confirmation == "y":
+                                    points -= mmm_cost
+                                    multiplier += 3
+                                    shop_upgrades['multiplier**'] += 1
+                                    shop_upgrades['shopUpgradesPurchased'] += 1
+                                    animated_print(f"{Fore.GREEN}Purchase successful! You spent {Style.BRIGHT}{mmm_cost}{Style.NORMAL} points. You now have {Style.BRIGHT}{points}{Style.NORMAL} points and {Style.BRIGHT}{multiplier}{Style.NORMAL} multiplier.{Fore.RESET + Style.RESET_ALL}")
+                                else:
+                                    animated_print(f"{Fore.RED}Purchase canceled.{Fore.RESET}")
+                            else:
                                 multiplier += 3
                                 shop_upgrades['multiplier**'] += 1
                                 shop_upgrades['shopUpgradesPurchased'] += 1
                                 animated_print(f"{Fore.GREEN}Purchase successful! You spent {Style.BRIGHT}{mmm_cost}{Style.NORMAL} points. You now have {Style.BRIGHT}{points}{Style.NORMAL} points and {Style.BRIGHT}{multiplier}{Style.NORMAL} multiplier.{Fore.RESET + Style.RESET_ALL}")
-                            else:
-                                animated_print(f"{Fore.RED}Purchase canceled.{Fore.RESET}")
                         else:
                             animated_print(f"{Fore.RED}You do not have enough points to purchase this upgrade, please try later! (Required: {mmm_cost} points, Current: {points} points){Fore.RESET}")
                             continue
@@ -563,16 +593,23 @@ There is a limit, though; each purchase adds 10 to the maximum rounds count. Fir
                             animated_print(f"{Fore.YELLOW}You already maximized this upgrade!{Fore.RESET}")
                             continue
                         if points >= bulk_cost:
-                            animated_print(f"{Fore.YELLOW}You have enough points to purchase this upgrade. Are you sure that you want to purchase this upgrade? Enter y to continue.{Fore.RESET}")
-                            last_confirmation = animated_input(2).strip().lower()
-                            if last_confirmation == "y":
+                            if confirmation:
+                                animated_print(f"{Fore.YELLOW}You have enough points to purchase this upgrade. Are you sure that you want to purchase this upgrade? Enter y to continue.{Fore.RESET}")
+                                last_confirmation = animated_input(2).strip().lower()
+                                if last_confirmation == "y":
+                                    points -= bulk_cost
+                                    shop_upgrades['bulkPlay'] += 1
+                                    shop_upgrades['shopUpgradesPurchased'] += 1
+                                    settings['useBulkPlay'] = 0
+                                    animated_print(f"{Fore.GREEN}Purchase successful! You spent {Style.BRIGHT}{bulk_cost}{Style.NORMAL} points. You now have {Style.BRIGHT}{points}{Style.NORMAL} points.{Fore.RESET + Style.RESET_ALL}")
+                                else:
+                                    animated_print(f"{Fore.RED}Purchase canceled.{Fore.RESET}")
+                            else:
                                 points -= bulk_cost
                                 shop_upgrades['bulkPlay'] += 1
                                 shop_upgrades['shopUpgradesPurchased'] += 1
                                 settings['useBulkPlay'] = 0
                                 animated_print(f"{Fore.GREEN}Purchase successful! You spent {Style.BRIGHT}{bulk_cost}{Style.NORMAL} points. You now have {Style.BRIGHT}{points}{Style.NORMAL} points.{Fore.RESET + Style.RESET_ALL}")
-                            else:
-                                animated_print(f"{Fore.RED}Purchase canceled.{Fore.RESET}")
                         else:
                             animated_print(f"{Fore.RED}You do not have enough points to purchase this upgrade, please try later! (Required: {bulk_cost} points, Current: {points} points){Fore.RESET}")
                             continue
@@ -581,7 +618,7 @@ There is a limit, though; each purchase adds 10 to the maximum rounds count. Fir
                             animated_print(f"{Fore.YELLOW}You already bought this upgrade! If you want to view the ending again, use your newly unlocked command ?ending!{Fore.RESET}")
                             continue
                         if points >= 200000 and multiplier == 251 and command_count >= 400:
-                            animated_print(f"You have enough resources to purchase this upgrade. Are you sure that you want to purchase this upgrade?\n{Fore.RED}WARNING: This action is irreversable. This also breaks the space continuum. Enter y to continue...{Fore.RESET}")
+                            animated_print(f"...are you sure?\n{Fore.RED}WARNING: This action is irreversable. This also breaks the space continuum. Enter y to continue...{Fore.RESET}")
                             last_confirmation = animated_input(2)
                             if last_confirmation == "y":
                                 points -= 200000
