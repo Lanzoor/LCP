@@ -67,7 +67,7 @@ except FileNotFoundError:
 savedata_version = savedata['savedataVersion']
 
 if base64.b64decode(savedata_version.encode()).decode() != lcp_version:
-    animated_print("Your savedata does not match your current version, please download one corresponding to your script version using https://github.com/Lanzoor/LCP/blob/main/savedata.json !")
+    animated_print("Your savedata does not match your current version, please download one corresponding to your script version using https://github.com/Lanzoor/LCP/blob/main/savedata.json ! And also, please do not change the version tag in your savedata.")
     time.sleep(5)
     raise ForceQuitted("Aborted; an outdated savedata.json file.")
 
