@@ -1,6 +1,6 @@
 import platform, time, random, json, os, webbrowser
 
-lcp_version = "v0.7-beta"
+lcp_version = "v0.7.1-beta"
 
 class ForceQuitted(Exception) : ...
 
